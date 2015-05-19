@@ -24,6 +24,7 @@
         android:id="@+id/snoozeButton"
         android:layout_above="@+id/offSwitch"
         android:layout_centerHorizontal="true"
+        android:onClick="snoozeBtn"
          />
 
     <TextView
@@ -42,9 +43,9 @@
         android:id="@+id/editButton"
         android:src="@mipmap/edit_icon"
         android:background="#F0F8FF"
-
         android:layout_alignTop="@+id/addButton"
-        android:layout_alignEnd="@+id/offSwitch" />
+        android:layout_alignEnd="@+id/offSwitch"
+        android:onClick="editBtn" />
 
     <ImageButton
         android:layout_width="50dp"
@@ -54,7 +55,8 @@
         android:background="#F0F8FF"
         android:layout_marginBottom="63dp"
         android:layout_above="@+id/offSwitch"
-        android:layout_alignStart="@+id/header" />
+        android:layout_alignStart="@+id/header"
+        android:onClick="addActivityBtn" />
 
     <ListView
         android:layout_width="wrap_content"

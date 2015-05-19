@@ -1,10 +1,12 @@
 package com.example.chronos.themeprojectitsmap_201270746;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 
 public class MainMenuActivity extends ActionBarActivity {
@@ -38,14 +40,21 @@ public class MainMenuActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void openSettingsView(View view)
+    public void snoozeBtn(View view)
     {
+        Toast.makeText(getApplicationContext(), "test", Toast.LENGTH_LONG).show();
+    }
+
+    public void addActivityBtn(View view)
+    {
+
 
     }
 
-    public void openWizard(View view)
+    public void editBtn(View view)
     {
-
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
     }
 }
 
