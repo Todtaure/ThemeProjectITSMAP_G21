@@ -154,8 +154,7 @@ public class ActivityDataSource {
     //------------------Read methods------------------
     //
 
-    public ArrayList<ActivityModel> getAllActivities()
-    {
+    public ArrayList<ActivityModel> getAllActivities() {
         if(!db.isOpen())
         {
             open();
@@ -194,6 +193,73 @@ public class ActivityDataSource {
         return activityList;
     }
 
+    private ArrayList<GPSModel> getGpsDataByActivity(long activityId) {
+        if(!db.isOpen())
+        {
+            open();
+        }
+
+        ArrayList<GPSModel> gpsDataList;
+
+        String[] projection = {
+                ReminderContract.GPSTable._ID,
+                ReminderContract.GPSTable.COLUMN_NAME_FRIENDLYNAME,
+                ReminderContract.GPSTable.COLUMN_NAME_GPSCOORDINATES,
+                ReminderContract.GPSTable.COLUMN_NAME_ACTIVITY_FK
+        };
+        String sortOrder = ReminderContract.GPSTable.COLUMN_NAME_ACTIVITY_FK + " DESC";
+        String  selection = ReminderContract.GPSTable.COLUMN_NAME_ACTIVITY_FK + " = ?";
+        String[] selectionArgs = { String.valueOf(activityId) };
+
+        Cursor cursor = db.query(
+                ReminderContract.GPSTable.TABLE_NAME,
+                projection,                               // The columns to return
+                selection,                                     // The columns for the WHERE clause
+                selectionArgs,                                     // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                sortOrder                                 // The sort order
+        );
+
+        gpsDataList = readGPSDataCursor(cursor);
+        cursor.close();
+
+        return gpsDataList;
+    }
+
+    private ArrayList<OffIntervalsModel> getOffIntervalsByActivity(long activityId) {
+        if(!db.isOpen())
+        {
+            open();
+        }
+
+        ArrayList<OffIntervalsModel> offIntervalsList;
+
+        String[] projection = {
+                ReminderContract.OffIntervalsTable._ID,
+                ReminderContract.OffIntervalsTable.COLUMN_NAME_OFFINTERVAL,
+                ReminderContract.OffIntervalsTable.COLUMN_NAME_ACTIVITY_FK
+        };
+        String sortOrder = ReminderContract.OffIntervalsTable.COLUMN_NAME_ACTIVITY_FK + " DESC";
+        String  selection = ReminderContract.OffIntervalsTable.COLUMN_NAME_ACTIVITY_FK + " = ?";
+        String[] selectionArgs = { String.valueOf(activityId) };
+
+        Cursor cursor = db.query(
+                ReminderContract.OffIntervalsTable.TABLE_NAME,
+                projection,                               // The columns to return
+                selection,                                     // The columns for the WHERE clause
+                selectionArgs,                                     // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                sortOrder                                 // The sort order
+        );
+
+        offIntervalsList = readOffIntervalsCursor(cursor);
+        cursor.close();
+
+        return offIntervalsList;
+    }
+
     private ArrayList<ActivityModel> readActivityCursor(Cursor cursor) {
         ArrayList<ActivityModel> activityList = new ArrayList<ActivityModel>();
         if(cursor.getCount() == 0)
@@ -205,13 +271,14 @@ public class ActivityDataSource {
         {
             ActivityModel activity = new ActivityModel();
 
-            activity.setId(cursor.getLong(cursor.getColumnIndex(ReminderContract.ActivityTable._ID)));
+            activity.setId(cursor.getLong(
+                    cursor.getColumnIndex(ReminderContract.ActivityTable._ID)));
             activity.setName(cursor.getString(
                     cursor.getColumnIndex(ReminderContract.ActivityTable.COLUMN_NAME_ACTIVITYNAME)));
             activity.setIsSnooze(cursor.getInt(
-                    cursor.getColumnIndex(ReminderContract.ActivityTable.COLUMN_NAME_ISSNOOZE)) == 1 ? true : false);
+                    cursor.getColumnIndex(ReminderContract.ActivityTable.COLUMN_NAME_ISSNOOZE)) == 1);
             activity.setIsOff(cursor.getInt(
-                    cursor.getColumnIndex(ReminderContract.ActivityTable.COLUMN_NAME_ISOFF)) == 1 ? true : false);
+                    cursor.getColumnIndex(ReminderContract.ActivityTable.COLUMN_NAME_ISOFF)) == 1);
             activity.setMinTimeInterval(cursor.getInt(
                     cursor.getColumnIndex(ReminderContract.ActivityTable.COLUMN_NAME_MINTIMEINTERVAL)));
             activity.setMaxReminders(cursor.getInt(
@@ -219,7 +286,10 @@ public class ActivityDataSource {
             activity.setReminderCounter(cursor.getInt(
                     cursor.getColumnIndex(ReminderContract.ActivityTable.COLUMN_NAME_REMINDERCOUNTER)));
             activity.setDone(cursor.getInt(
-                    cursor.getColumnIndex(ReminderContract.ActivityTable.COLUMN_NAME_DONE)) == 1 ? true : false);
+                    cursor.getColumnIndex(ReminderContract.ActivityTable.COLUMN_NAME_DONE)) == 1);
+
+            activity.setGpsData(getGpsDataByActivity(activity.getId()));
+            activity.setOffIntervals(getOffIntervalsByActivity(activity.getId()));
 
             activityList.add(activity);
         }
@@ -227,14 +297,59 @@ public class ActivityDataSource {
         return activityList;
     }
 
-    private ArrayList<GPSModel> readGPSDataCursor(Cursor cursor)
-    {
+    private ArrayList<GPSModel> readGPSDataCursor(Cursor cursor) {
         ArrayList<GPSModel> gpsList = new ArrayList<GPSModel>();
         if(cursor.getCount() == 0)
         {
             return gpsList;
         }
 
+        while(cursor.moveToNext())
+        {
+            GPSModel gpsData = new GPSModel();
+
+            gpsData.setId(cursor.getLong(
+                    cursor.getColumnIndex(ReminderContract.GPSTable._ID)));
+            gpsData.setName(cursor.getString(
+                    cursor.getColumnIndex(ReminderContract.GPSTable.COLUMN_NAME_FRIENDLYNAME)));
+            gpsData.setCoordinates(cursor.getString(
+                    cursor.getColumnIndex(ReminderContract.GPSTable.COLUMN_NAME_GPSCOORDINATES)));
+
+            gpsList.add(gpsData);
+        }
+
         return gpsList;
     }
+
+    private ArrayList<OffIntervalsModel> readOffIntervalsCursor(Cursor cursor) {
+        ArrayList<OffIntervalsModel> offIntervalsList = new ArrayList<OffIntervalsModel>();
+        if(cursor.getCount() == 0)
+        {
+            return offIntervalsList;
+        }
+
+        while(cursor.moveToNext())
+        {
+            OffIntervalsModel offIntervals = new OffIntervalsModel();
+
+            offIntervals.setId(cursor.getLong(
+                    cursor.getColumnIndex(ReminderContract.OffIntervalsTable._ID)));
+            offIntervals.setOffInterval(cursor.getString(
+                    cursor.getColumnIndex(ReminderContract.OffIntervalsTable.COLUMN_NAME_OFFINTERVAL)));
+
+            offIntervalsList.add(offIntervals);
+        }
+
+        return offIntervalsList;
+    }
+
+    //
+    //------------------Update methods------------------
+    //
+
+
+    //
+    //------------------Delete methods------------------
+    //
+
 }
