@@ -133,6 +133,12 @@ public class MainMenuActivity extends Activity {
         });
     }
 
+    @Override
+    public void onDestroy()
+    {
+        super.onDestroy();
+        stopService(new Intent(this,ReminderService.class));
+    }
 }
 
 
