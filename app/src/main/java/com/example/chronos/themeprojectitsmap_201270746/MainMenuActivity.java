@@ -3,10 +3,13 @@ package com.example.chronos.themeprojectitsmap_201270746;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
+
+import com.example.chronos.themeprojectitsmap_201270746.Service.ReminderService;
 
 
 public class MainMenuActivity extends ActionBarActivity {
@@ -43,6 +46,7 @@ public class MainMenuActivity extends ActionBarActivity {
     public void snoozeBtn(View view)
     {
         Toast.makeText(getApplicationContext(), "test", Toast.LENGTH_LONG).show();
+        startService(new Intent(this, ReminderService.class));
     }
 
     public void addActivityBtn(View view)
@@ -56,5 +60,6 @@ public class MainMenuActivity extends ActionBarActivity {
         Intent intent = new Intent(this, SettingsActivity.class);
         startActivity(intent);
     }
+
 }
 

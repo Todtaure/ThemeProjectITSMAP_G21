@@ -1,8 +1,11 @@
-package com.example.chronos.themeprojectitsmap_201270746;
+package com.example.chronos.themeprojectitsmap_201270746.Database;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
+
+import com.example.chronos.themeprojectitsmap_201270746.Utilities.Constants;
 //Taken from: http://developer.android.com/training/basics/data-storage/databases.html
 
 public class ReminderDbHelper extends SQLiteOpenHelper {
@@ -21,7 +24,7 @@ public class ReminderDbHelper extends SQLiteOpenHelper {
                     ReminderContract.ActivityTable.COLUMN_NAME_MINTIMEINTERVALS + INTEGER_TYPE + NOTNULL  + COMMA_SEP +
                     ReminderContract.ActivityTable.COLUMN_NAME_MAXREMINDERS + INTEGER_TYPE + COMMA_SEP +
                     ReminderContract.ActivityTable.COLUMN_NAME_REMINDERCOUNTER + INTEGER_TYPE + NOTNULL + COMMA_SEP +
-                    ReminderContract.ActivityTable.COLUMN_NAME_ISFIRSTTIMESETUP + INTEGER_TYPE + NOTNULL + COMMA_SEP +
+                    ReminderContract.ActivityTable.COLUMN_NAME_DONE + INTEGER_TYPE + NOTNULL +
                     " )";
     private static final String SQL_CREATE_ENTRIES_GPS =
             "CREATE TABLE " + ReminderContract.GPSTable.TABLE_NAME + " (" +
@@ -50,13 +53,15 @@ public class ReminderDbHelper extends SQLiteOpenHelper {
 
     public ReminderDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        Log.d(Constants.Debug.LOG_TAG, "ReminderDbHelper.Constructor");
     }
     public void onCreate(SQLiteDatabase db) {
-
+        Log.d(Constants.Debug.LOG_TAG, "ReminderDbHelper.onCreate");
         db.execSQL(SQL_CREATE_ENTRIES_ACTIVITY);
 
         db.execSQL(SQL_CREATE_ENTRIES_GPS);
         db.execSQL(SQL_CREATE_ENTRIES_OFFINTERVALS);
+        Log.d(Constants.Debug.LOG_TAG, "DB created.");
     }
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // This database is only a cache for online data, so its upgrade policy is

@@ -1,4 +1,4 @@
-package com.example.chronos.themeprojectitsmap_201270746;
+package com.example.chronos.themeprojectitsmap_201270746.Database;
 import android.provider.BaseColumns;
 
 /**
@@ -18,7 +18,7 @@ public final class ReminderContract {
         public static final String COLUMN_NAME_MINTIMEINTERVALS = "minTimeIntervals";
         public static final String COLUMN_NAME_MAXREMINDERS = "maxReminders";
         public static final String COLUMN_NAME_REMINDERCOUNTER = "reminderCounter";
-        public static final String COLUMN_NAME_ISFIRSTTIMESETUP = "isFirstTimeSetup";
+        public static final String COLUMN_NAME_DONE = "done";
     }
 
     public static abstract class GPSTable implements BaseColumns
