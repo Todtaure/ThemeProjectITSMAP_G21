@@ -19,6 +19,8 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.Toast;
 
+import com.example.chronos.themeprojectitsmap_201270746.Service.ReminderService;
+
 
 public class MainMenuActivity extends Activity {
 
@@ -35,6 +37,7 @@ public class MainMenuActivity extends Activity {
                 //Open popup window
                 if (p != null)
                     showPopup(MainMenuActivity.this, p);
+                    startService(new Intent(getApplicationContext(), ReminderService.class));
             }
         });
     }
