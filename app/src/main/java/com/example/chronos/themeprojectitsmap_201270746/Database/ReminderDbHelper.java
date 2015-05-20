@@ -21,7 +21,7 @@ public class ReminderDbHelper extends SQLiteOpenHelper {
                     ReminderContract.ActivityTable.COLUMN_NAME_ACTIVITYNAME + TEXT_TYPE + NOTNULL + COMMA_SEP +
                     ReminderContract.ActivityTable.COLUMN_NAME_ISSNOOZE + INTEGER_TYPE + NOTNULL + COMMA_SEP +
                     ReminderContract.ActivityTable.COLUMN_NAME_ISOFF + INTEGER_TYPE + NOTNULL + COMMA_SEP +
-                    ReminderContract.ActivityTable.COLUMN_NAME_MINTIMEINTERVALS + INTEGER_TYPE + NOTNULL  + COMMA_SEP +
+                    ReminderContract.ActivityTable.COLUMN_NAME_MINTIMEINTERVAL + INTEGER_TYPE + NOTNULL  + COMMA_SEP +
                     ReminderContract.ActivityTable.COLUMN_NAME_MAXREMINDERS + INTEGER_TYPE + COMMA_SEP +
                     ReminderContract.ActivityTable.COLUMN_NAME_REMINDERCOUNTER + INTEGER_TYPE + NOTNULL + COMMA_SEP +
                     ReminderContract.ActivityTable.COLUMN_NAME_DONE + INTEGER_TYPE + NOTNULL +
@@ -29,7 +29,7 @@ public class ReminderDbHelper extends SQLiteOpenHelper {
     private static final String SQL_CREATE_ENTRIES_GPS =
             "CREATE TABLE " + ReminderContract.GPSTable.TABLE_NAME + " (" +
                     ReminderContract.GPSTable._ID + INTEGER_TYPE + " PRIMARY KEY AUTOINCREMENT," +
-                    ReminderContract.GPSTable.COLUMN_NAME_GPSCOORDINATES + INTEGER_TYPE + NOTNULL + COMMA_SEP +
+                    ReminderContract.GPSTable.COLUMN_NAME_GPSCOORDINATES + TEXT_TYPE + NOTNULL + COMMA_SEP +
                     ReminderContract.GPSTable.COLUMN_NAME_ACTIVITY_FK + INTEGER_TYPE +
                     " REFERENCES " + ReminderContract.ActivityTable.TABLE_NAME + "("+ReminderContract.ActivityTable._ID + ")" + " ON DELETE CASCADE" +
                     " )";

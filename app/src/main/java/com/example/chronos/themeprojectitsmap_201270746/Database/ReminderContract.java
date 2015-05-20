@@ -15,7 +15,7 @@ public final class ReminderContract {
         public static final String COLUMN_NAME_ACTIVITYNAME = "name";
         public static final String COLUMN_NAME_ISSNOOZE = "isSnooze";
         public static final String COLUMN_NAME_ISOFF = "isOff";
-        public static final String COLUMN_NAME_MINTIMEINTERVALS = "minTimeIntervals";
+        public static final String COLUMN_NAME_MINTIMEINTERVAL = "minTimeInterval";
         public static final String COLUMN_NAME_MAXREMINDERS = "maxReminders";
         public static final String COLUMN_NAME_REMINDERCOUNTER = "reminderCounter";
         public static final String COLUMN_NAME_DONE = "done";
