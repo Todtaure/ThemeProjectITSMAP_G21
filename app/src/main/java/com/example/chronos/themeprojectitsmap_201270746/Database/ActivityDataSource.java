@@ -227,4 +227,14 @@ public class ActivityDataSource {
         return activityList;
     }
 
+    private ArrayList<GPSModel> readGPSDataCursor(Cursor cursor)
+    {
+        ArrayList<GPSModel> gpsList = new ArrayList<GPSModel>();
+        if(cursor.getCount() == 0)
+        {
+            return gpsList;
+        }
+
+        return gpsList;
+    }
 }
