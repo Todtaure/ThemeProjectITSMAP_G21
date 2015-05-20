@@ -24,23 +24,19 @@ public class OffIntervalsModel
     }
 
     /**
+     * Create offInterval from database.
+     */
+    public OffIntervalsModel()
+    {
+    }
+
+    /**
      * Create new offInterval.
      * @param offInterval
      */
     public OffIntervalsModel(String offInterval)
     {
         this.id = -1;
-        this.offInterval = offInterval;
-    }
-
-    /**
-     * Create offInterval from database.
-     * @param id from database.
-     * @param offInterval from database.
-     */
-    public OffIntervalsModel(long id, String offInterval)
-    {
-        this.id = id;
         this.offInterval = offInterval;
     }
 }
