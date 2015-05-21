@@ -5,8 +5,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -17,14 +19,21 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.example.chronos.themeprojectitsmap_201270746.Service.ReminderService;
+
+import java.util.Date;
 
 
 public class MainMenuActivity extends Activity {
 
     Point p;
+    private TimePicker tp;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,7 +76,8 @@ public class MainMenuActivity extends Activity {
 
     public void addActivityBtn(View view)
     {
-        startService(new Intent(getApplicationContext(), ReminderService.class));
+
+
     }
 
     public void editBtn(View view)
@@ -80,11 +90,11 @@ public class MainMenuActivity extends Activity {
     public void onWindowFocusChanged(boolean hasFocus) {
 
         int[] location = new int[2];
-        Button button = (Button) findViewById(R.id.snoozeButton);
+        //Button button = (Button) findViewById(R.id.snoozeButton);
 
         // Get the x, y location and store it in the location[] array
         // location[0] = x, location[1] = y.
-        button.getLocationOnScreen(location);
+        //button.getLocationOnScreen(location);
 
         //Initialize the Point with x, and y positions
         p = new Point();
@@ -94,31 +104,31 @@ public class MainMenuActivity extends Activity {
 
     // The method that displays the popup.
     private void showPopup(final Activity context, Point p) {
-        int popupWidth = 1500;
-        int popupHeight = 1500;
-
         // Inflate the popup_layout.xml
-        LinearLayout viewGroup = (LinearLayout) context.findViewById(R.id.popup);
+        RelativeLayout viewGroup = (RelativeLayout) context.findViewById(R.id.popup);
         LayoutInflater layoutInflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View layout = layoutInflater.inflate(R.layout.popup_layout_main_snooze, viewGroup);
 
         // Creating the PopupWindow
-        final PopupWindow popup = new PopupWindow(context);
+        final PopupWindow popup = new PopupWindow(layout, ActionBar.LayoutParams.FILL_PARENT, ActionBar.LayoutParams.FILL_PARENT,true);
         popup.setContentView(layout);
-        popup.setWidth(popupWidth);
-        popup.setHeight(popupHeight);
         popup.setFocusable(true);
-
-        // Some offset to align the popup a bit to the right, and a bit down, relative to button's position.
-        int OFFSET_X = 300;
-        int OFFSET_Y = 300;
-
-        // Clear the default translucent background
-        popup.setBackgroundDrawable(new BitmapDrawable());
+        popup.setBackgroundDrawable(new ColorDrawable(Color.BLUE));
 
         // Displaying the popup at the specified location, + offsets.
-        popup.showAtLocation(layout, Gravity.CENTER_HORIZONTAL,0,0);
+        popup.showAtLocation(layout, 0, 10, 0);
+
+        tp = (TimePicker)layout.findViewById(R.id.timePicker);
+                
+        Integer tmpHour = tp.getCurrentHour();
+        Integer tmpMinute = tp.getCurrentMinute();
+
+        TextView textViewMinute = (TextView)layout.findViewById(R.id.textViewMinute);
+        textViewMinute.setText(tmpMinute.toString());
+
+        TextView textViewHour = (TextView)layout.findViewById(R.id.textViewHour);
+        textViewHour.setText(tmpHour.toString());
 
         // Getting a reference to Close button, and close the popup when clicked.
         Button close = (Button) layout.findViewById(R.id.close);
@@ -129,6 +139,16 @@ public class MainMenuActivity extends Activity {
                 popup.dismiss();
             }
         });
+
+        Button saveBtn = (Button) layout.findViewById(R.id.saveBtn);
+        saveBtn.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+
+
+            }
+        }) ;
     }
 
     @Override
