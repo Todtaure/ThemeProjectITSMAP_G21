@@ -51,7 +51,6 @@ public class MainMenuActivity extends Activity {
                 //Open popup window
                 if (p != null)
                     showPopup(MainMenuActivity.this, p);
-                startService(new Intent(getApplicationContext(), ReminderService.class));
             }
         });
 
@@ -99,6 +98,7 @@ public class MainMenuActivity extends Activity {
 
     public void addActivityBtn(View view)
     {
+        startService(new Intent(getApplicationContext(), ReminderService.class));
     }
 
     public void editBtn(View view)
