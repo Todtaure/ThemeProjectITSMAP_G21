@@ -34,6 +34,7 @@ public class ActivityModel
     {
         return id;
     }
+
     public void setName(String name)
     {
         this.name = name;
@@ -51,6 +52,7 @@ public class ActivityModel
     {
         return isSnooze;
     }
+
     public void setIsOff(Boolean isOff)
     {
         this.isOff = isOff;
@@ -102,6 +104,10 @@ public class ActivityModel
     }
     public List<GPSModel> getGpsData()
     {
+        if(gpsData == null)
+        {
+            gpsData = new ArrayList<GPSModel>();
+        }
         return gpsData;
     }
 
@@ -109,7 +115,19 @@ public class ActivityModel
         this.offIntervals = offIntervals;
     }
     public List<OffIntervalsModel> getOffIntervals(){
+        if(offIntervals == null)
+        {
+            offIntervals = new ArrayList<OffIntervalsModel>();
+        }
         return offIntervals;
+    }
+
+    public ActivityModel()
+    {
+        setDone(false);
+        setIsOff(true);
+        setIsSnooze(false);
+        setReminderCounter(0);
     }
 
     //Other public methods.
@@ -121,6 +139,15 @@ public class ActivityModel
             gpsData = new ArrayList<GPSModel>();
         }
         gpsData.add(data);
+    }
+
+    public void addGpsData(Collection<GPSModel> data)
+    {
+        if(gpsData == null)
+        {
+            gpsData = new ArrayList<GPSModel>();
+        }
+        gpsData.addAll(data);
     }
 
     public void removeGpsData(GPSModel data)
@@ -140,13 +167,22 @@ public class ActivityModel
         offIntervals.add(data);
     }
 
-    public void removeOffInterval(OffIntervalsModel data)
+    public void addOffInterval(Collection<OffIntervalsModel> data)
     {
+        if(offIntervals == null)
+        {
+            offIntervals = new ArrayList<OffIntervalsModel>();
+        }
+        offIntervals.addAll(data);
+    }
+
+    public void removeOffInterval(OffIntervalsModel data) {
         if(offIntervals != null)
         {
             offIntervals.remove(data);
         }
     }
+
     /**
      * Post increments the Reminder Counter for the Activity.
      */
