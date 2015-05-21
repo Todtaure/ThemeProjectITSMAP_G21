@@ -25,6 +25,7 @@ public final class ReminderContract {
     {
         public static final String TABLE_NAME = "gpsCoordinates";
         //public static final String COLUMN_NAME_GPSCOORDINATES_ID = "gpsCoordinatesId";
+        public static final String COLUMN_NAME_FRIENDLYNAME = "friendlyName";
         public static final String COLUMN_NAME_ACTIVITY_FK = "activityFK";
         public static final String COLUMN_NAME_GPSCOORDINATES= "gpsCoordinates";
     }

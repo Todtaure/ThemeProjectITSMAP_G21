@@ -5,6 +5,7 @@ package com.example.chronos.themeprojectitsmap_201270746.Database.Models;
  */
 public class GPSModel {
     private long id;
+    private String name;
     private String coordinates;
 
     public void setId(long id)
@@ -14,6 +15,15 @@ public class GPSModel {
     public long getId()
     {
         return id;
+    }
+
+    public void setName(String name)
+    {
+        this.name = name;
+    }
+    public String getName()
+    {
+        return name;
     }
 
     public void setCoordinates(String coordinates)
@@ -26,25 +36,21 @@ public class GPSModel {
     }
 
     /**
-     * Create new GPS coordinates.
-     * @param coordinates
+     * Create GPS coordinates from database.
      */
-    public GPSModel(String coordinates)
+    public GPSModel()
     {
-        this.id = -1;
-        this.coordinates = coordinates;
     }
 
     /**
-     * Create GPS coordinates from database.
-     * @param id from database.
-     * @param coordinates from database.
+     * Create new GPS coordinates.
+     * @param coordinates
      */
-    public GPSModel(long id, String coordinates)
+    public GPSModel(String name, String coordinates)
     {
-        this.id = id;
+        this.id = -1;
+        this.name = name;
         this.coordinates = coordinates;
     }
-
 }
 
