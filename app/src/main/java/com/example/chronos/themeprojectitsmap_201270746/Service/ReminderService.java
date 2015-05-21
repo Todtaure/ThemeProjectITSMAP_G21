@@ -181,7 +181,6 @@ public class ReminderService extends Service {
 
         public void handleReminderTimeout()
         {
-            //Handle alarm timeout and notification
         }
 
     }
