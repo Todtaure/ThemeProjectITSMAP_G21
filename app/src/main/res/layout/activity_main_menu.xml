@@ -5,7 +5,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="com.example.chronos.themeprojectitsmap_201270746.MainMenuActivity"
-    android:background="#F0F8FF" >
+    android:background="#F0F8FF">
 
     <Switch
         android:layout_width="wrap_content"
@@ -14,7 +14,7 @@
         android:id="@+id/offSwitch"
         android:checked="false"
         android:layout_alignParentBottom="true"
-        android:layout_alignEnd="@+id/header" />
+        android:layout_alignEnd="@+id/header"/>
 
     <Button
         android:layout_width="wrap_content"

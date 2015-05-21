@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -17,9 +18,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -33,12 +36,14 @@ public class MainMenuActivity extends Activity {
 
     Point p;
     private TimePicker tp;
+    private Switch offSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
         Button btn_show = (Button) findViewById(R.id.snoozeButton);
+
         btn_show.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
@@ -46,7 +51,24 @@ public class MainMenuActivity extends Activity {
                 //Open popup window
                 if (p != null)
                     showPopup(MainMenuActivity.this, p);
-                    startService(new Intent(getApplicationContext(), ReminderService.class));
+                startService(new Intent(getApplicationContext(), ReminderService.class));
+            }
+        });
+
+        offSwitch = (Switch) findViewById(R.id.offSwitch);
+        offSwitch.setChecked(false);
+
+        offSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isOff) {
+
+                if(isOff) {
+                    offSwitch.setText("On");
+                    onDestroy();
+                }
+                else {
+                    offSwitch.setText("Off");
+                }
             }
         });
     }
@@ -89,13 +111,6 @@ public class MainMenuActivity extends Activity {
     public void onWindowFocusChanged(boolean hasFocus) {
 
         int[] location = new int[2];
-        //Button button = (Button) findViewById(R.id.snoozeButton);
-
-        // Get the x, y location and store it in the location[] array
-        // location[0] = x, location[1] = y.
-        //button.getLocationOnScreen(location);
-
-        //Initialize the Point with x, and y positions
         p = new Point();
         p.x = location[0];
         p.y = location[1];
@@ -107,7 +122,7 @@ public class MainMenuActivity extends Activity {
         RelativeLayout viewGroup = (RelativeLayout) context.findViewById(R.id.popup);
         LayoutInflater layoutInflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View layout = layoutInflater.inflate(R.layout.popup_layout_main_snooze, viewGroup);
+        final View layout = layoutInflater.inflate(R.layout.popup_layout_main_snooze, viewGroup);
 
         // Creating the PopupWindow
         final PopupWindow popup = new PopupWindow(layout, ActionBar.LayoutParams.FILL_PARENT, ActionBar.LayoutParams.FILL_PARENT,true);
@@ -119,20 +134,11 @@ public class MainMenuActivity extends Activity {
         popup.showAtLocation(layout, 0, 10, 0);
 
         tp = (TimePicker)layout.findViewById(R.id.timePicker);
-                
-        Integer tmpHour = tp.getCurrentHour();
-        Integer tmpMinute = tp.getCurrentMinute();
-
-        TextView textViewMinute = (TextView)layout.findViewById(R.id.textViewMinute);
-        textViewMinute.setText(tmpMinute.toString());
-
-        TextView textViewHour = (TextView)layout.findViewById(R.id.textViewHour);
-        textViewHour.setText(tmpHour.toString());
+        tp.setIs24HourView(true);
 
         // Getting a reference to Close button, and close the popup when clicked.
         Button close = (Button) layout.findViewById(R.id.close);
         close.setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
                 popup.dismiss();
@@ -144,8 +150,14 @@ public class MainMenuActivity extends Activity {
 
             @Override
             public void onClick(View v) {
+                Integer tmpHour = tp.getCurrentHour();
+                Integer tmpMinute = tp.getCurrentMinute();
 
+                TextView textViewMinute = (TextView)layout.findViewById(R.id.textViewMinute);
+                textViewMinute.setText(tmpMinute.toString());
 
+                TextView textViewHour = (TextView)layout.findViewById(R.id.textViewHour);
+                textViewHour.setText(tmpHour.toString());
             }
         }) ;
     }
