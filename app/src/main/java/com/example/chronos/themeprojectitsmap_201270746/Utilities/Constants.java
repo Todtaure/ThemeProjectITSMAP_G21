@@ -15,9 +15,19 @@ public final class Constants {
         public static final String SERVICE_HANDLER = "ReminderServiceHandler";
     }
 
+    public static abstract class Messages
+    {
+        public static final String ERR_DB_UPDATE = "Database update failed.";
+        public static final String ERR_DB_INSERT = "Database insert failed.";
+        public static final String ERR_DB_DELETE = "Database delete failed.";
+        public static final String ERR_DB_READ = "Database read failed.";
+        public static final String ERR_DB_CONNECTION = "Database connection failed.";
+    }
+
     public static abstract class Debug
     {
         public static final String LOG_TAG = "WHERE AM I?";
+        public static final String IS_DEBUG = "IS_DEBUG";
     }
 
 }
