@@ -31,5 +31,4 @@ public final class Constants {
         public static final String LOG_TAG = "WHERE AM I?";
         public static final String IS_DEBUG = "IS_DEBUG";
     }
-
 }

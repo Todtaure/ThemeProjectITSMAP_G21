@@ -5,6 +5,7 @@ import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.*;
 import android.os.Process;
 import android.util.Log;
@@ -30,6 +31,7 @@ import java.util.ArrayList;
 public class ReminderService extends Service {
     private Looper mServiceLooper;
     private ServiceHandler mServiceHandler;
+    private ServiceReceiver receiver;
 
 
     @Override
@@ -57,6 +59,10 @@ public class ReminderService extends Service {
     {
         Log.d(Constants.Debug.LOG_TAG, "ReminderService.onStartCommand");
 
+        receiver = new ServiceReceiver();
+
+        registerReceiver(receiver, new IntentFilter(Constants.Service.SERVICE_BROADCAST));
+
         Message msg = mServiceHandler.obtainMessage();
 
         Bundle bundle = new Bundle();
@@ -72,8 +78,9 @@ public class ReminderService extends Service {
     @Override
     public void onDestroy()
     {
-        Log.d(Constants.Debug.LOG_TAG, "ReminderService.onDestroy");
         super.onDestroy();
+        Log.d(Constants.Debug.LOG_TAG, "ReminderService.onDestroy");
+        unregisterReceiver(receiver);
     }
 
     private final class ServiceReceiver extends BroadcastReceiver
