@@ -101,10 +101,13 @@ public class ReminderService extends Service {
                     Toast.makeText(getBaseContext(), "OI STOP SNOOZING!", Toast.LENGTH_LONG).show();
                     Toast.makeText(getBaseContext(), String.valueOf(snoozeInterval),Toast.LENGTH_LONG).show();
 
-                    PendingIntent pendingIntent = PendingIntent.getBroadcast(getBaseContext(),0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    PendingIntent pendingIntent = PendingIntent.getBroadcast(getBaseContext(),0, intent, 0);
 
                     AlarmManager alarmManager = (AlarmManager)getSystemService(Activity.ALARM_SERVICE);
-                    alarmManager.set(AlarmManager.ELAPSED_REALTIME, snoozeInterval, pendingIntent);
+
+
+                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, snoozeInterval*1000*60,pendingIntent);
+                    //alarmManager.set(AlarmManager.RTC, snoozeInterval*60*1000, pendingIntent);
 
                 }
             }
@@ -220,6 +223,5 @@ public class ReminderService extends Service {
         public void handleReminderTimeout()
         {
         }
-
     }
 }
