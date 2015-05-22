@@ -32,4 +32,17 @@ public final class Constants {
         public static final String IS_DEBUG = "IS_DEBUG";
     }
 
+    public static abstract class BroadcastParams
+    {
+        public static final String BROADCAST_METHOD = "BROADCAST_METHOD";
+        // Manuel snooze interval from mainMenuActivity
+        public static final String SNOOZE_INTERVAL = "snooze_interval";
+    }
+
+    public static enum BroadcastMethods
+    {
+        SNOOZE,
+    }
+
+
 }
