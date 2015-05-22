@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
@@ -28,7 +29,11 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.example.chronos.themeprojectitsmap_201270746.Service.ReminderService;
+import com.example.chronos.themeprojectitsmap_201270746.Utilities.Constants;
 
+import org.apache.http.conn.ConnectionKeepAliveStrategy;
+
+import java.util.Calendar;
 import java.util.Date;
 
 
@@ -37,6 +42,8 @@ public class MainMenuActivity extends Activity {
     Point p;
     private TimePicker tp;
     private Switch offSwitch;
+    private Integer snoozeHour;
+    private Integer snoozeMinute;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,16 +157,28 @@ public class MainMenuActivity extends Activity {
 
             @Override
             public void onClick(View v) {
-                Integer tmpHour = tp.getCurrentHour();
-                Integer tmpMinute = tp.getCurrentMinute();
+                snoozeHour = tp.getCurrentHour();
+                snoozeMinute = tp.getCurrentMinute();
+
+                Calendar currentTime = Calendar.getInstance();
+                long offset = currentTime.get(Calendar.ZONE_OFFSET) +  currentTime.get(Calendar.DST_OFFSET);
+                String sinceMidnight = Long.toString((currentTime.getTimeInMillis() + offset) %  (24 * 60 * 60 * 1000));
+                int timeSinceMidnight = Integer.parseInt(sinceMidnight);
+
+                int snoozeInterval = (timeSinceMidnight/1000)/60 - (snoozeHour/60 + snoozeMinute);
+
+                Intent snoozeIntent = new Intent(Constants.Service.SERVICE_BROADCAST);
+                snoozeIntent.putExtra("snoozeInterval", snoozeInterval);
+                snoozeIntent.putExtra(Constants.BroadcastParams.BROADCAST_METHOD,Constants.BroadcastMethods.SNOOZE);
+                sendBroadcast(snoozeIntent);
 
                 TextView textViewMinute = (TextView)layout.findViewById(R.id.textViewMinute);
-                textViewMinute.setText(tmpMinute.toString());
+                textViewMinute.setText(snoozeMinute.toString());
 
                 TextView textViewHour = (TextView)layout.findViewById(R.id.textViewHour);
-                textViewHour.setText(tmpHour.toString());
+                textViewHour.setText(snoozeHour.toString());
             }
-        }) ;
+        });
     }
 
     @Override

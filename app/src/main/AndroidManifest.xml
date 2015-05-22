@@ -20,7 +20,13 @@
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings" >
         </activity>
-        <service android:name=".Service.ReminderService" ></service>
+
+        <service android:name=".Service.ReminderService" />
+
+        <activity
+            android:name=".Wizard.WizardActivity"
+            android:label="@string/title_activity_wizard" >
+        </activity>
     </application>
 
 </manifest>
