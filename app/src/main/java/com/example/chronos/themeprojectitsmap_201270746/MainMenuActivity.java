@@ -30,6 +30,7 @@ import android.widget.Toast;
 
 import com.example.chronos.themeprojectitsmap_201270746.Service.ReminderService;
 import com.example.chronos.themeprojectitsmap_201270746.Utilities.Constants;
+import com.example.chronos.themeprojectitsmap_201270746.Wizard.WizardActivity;
 
 import org.apache.http.conn.ConnectionKeepAliveStrategy;
 
@@ -62,18 +63,18 @@ public class MainMenuActivity extends Activity {
         });
 
         offSwitch = (Switch) findViewById(R.id.offSwitch);
-        offSwitch.setChecked(false);
 
         offSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isOff) {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isOn) {
 
-                if(isOff) {
+                if(isOn) {
                     offSwitch.setText("On");
-                    onDestroy();
+                    startService(new Intent(getApplicationContext(), ReminderService.class));
                 }
                 else {
                     offSwitch.setText("Off");
+                    onDestroy();
                 }
             }
         });
@@ -105,7 +106,8 @@ public class MainMenuActivity extends Activity {
 
     public void addActivityBtn(View view)
     {
-        startService(new Intent(getApplicationContext(), ReminderService.class));
+        Intent wizardIntent = new Intent(this, WizardActivity.class);
+        startActivity(wizardIntent);
     }
 
     public void editBtn(View view)

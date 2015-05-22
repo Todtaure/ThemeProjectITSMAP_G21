@@ -10,9 +10,9 @@
     <Switch
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Off"
+        android:text="On"
         android:id="@+id/offSwitch"
-        android:checked="false"
+        android:checked="true"
         android:layout_alignParentBottom="true"
         android:layout_alignEnd="@+id/header"/>
 

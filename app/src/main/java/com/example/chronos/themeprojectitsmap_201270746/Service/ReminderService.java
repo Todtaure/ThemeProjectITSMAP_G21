@@ -60,7 +60,7 @@ public class ReminderService extends Service {
         Message msg = mServiceHandler.obtainMessage();
 
         Bundle bundle = new Bundle();
-        bundle.putBoolean(Constants.Debug.IS_DEBUG, true);
+        bundle.putBoolean(Constants.Debug.IS_DEBUG, false);
 
         msg.arg1 = startId;
         msg.setData(bundle);
