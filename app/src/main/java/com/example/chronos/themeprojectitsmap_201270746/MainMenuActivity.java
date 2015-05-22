@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
@@ -37,6 +38,8 @@ public class MainMenuActivity extends Activity {
     Point p;
     private TimePicker tp;
     private Switch offSwitch;
+    private Integer snoozeHour;
+    private Integer snoozeMinute;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,14 +153,18 @@ public class MainMenuActivity extends Activity {
 
             @Override
             public void onClick(View v) {
-                Integer tmpHour = tp.getCurrentHour();
-                Integer tmpMinute = tp.getCurrentMinute();
+                snoozeHour = tp.getCurrentHour();
+                snoozeMinute = tp.getCurrentMinute();
+
+                Intent intent = new Intent("");
+                intent.putExtra("snoozeHour", snoozeHour);
+                sendBroadcast(intent);
 
                 TextView textViewMinute = (TextView)layout.findViewById(R.id.textViewMinute);
-                textViewMinute.setText(tmpMinute.toString());
+                textViewMinute.setText(snoozeMinute.toString());
 
                 TextView textViewHour = (TextView)layout.findViewById(R.id.textViewHour);
-                textViewHour.setText(tmpHour.toString());
+                textViewHour.setText(snoozeHour.toString());
             }
         }) ;
     }
