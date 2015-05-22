@@ -1,6 +1,9 @@
 package com.example.chronos.themeprojectitsmap_201270746.Service;
 
+import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.IntentService;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -17,6 +20,7 @@ import com.example.chronos.themeprojectitsmap_201270746.Database.Models.GPSModel
 import com.example.chronos.themeprojectitsmap_201270746.Database.Models.OffIntervalsModel;
 import com.example.chronos.themeprojectitsmap_201270746.Database.ReminderContract;
 import com.example.chronos.themeprojectitsmap_201270746.Database.ReminderDbHelper;
+import com.example.chronos.themeprojectitsmap_201270746.MainMenuActivity;
 import com.example.chronos.themeprojectitsmap_201270746.Utilities.Constants;
 
 import java.sql.SQLException;
@@ -31,8 +35,6 @@ import java.util.ArrayList;
 public class ReminderService extends Service {
     private Looper mServiceLooper;
     private ServiceHandler mServiceHandler;
-    private ServiceReceiver receiver;
-
 
     @Override
     public IBinder onBind(Intent intent)
@@ -59,9 +61,7 @@ public class ReminderService extends Service {
     {
         Log.d(Constants.Debug.LOG_TAG, "ReminderService.onStartCommand");
 
-        receiver = new ServiceReceiver();
-
-        registerReceiver(receiver, new IntentFilter(Constants.Service.SERVICE_BROADCAST));
+        registerReceiver(ServiceReceiver, new IntentFilter(Constants.Service.SERVICE_BROADCAST));
 
         Message msg = mServiceHandler.obtainMessage();
 
@@ -80,15 +80,16 @@ public class ReminderService extends Service {
     {
         super.onDestroy();
         Log.d(Constants.Debug.LOG_TAG, "ReminderService.onDestroy");
-        unregisterReceiver(receiver);
+        unregisterReceiver(ServiceReceiver);
     }
 
-    private final class ServiceReceiver extends BroadcastReceiver
+    private BroadcastReceiver ServiceReceiver = new BroadcastReceiver()
     {
-        public ServiceReceiver(){}
-
         @Override
         public void onReceive(Context context, Intent intent) {
+            //Intent receiveIntent = new Intent(context.getApplicationContext(), MainMenuActivity.class);
+            int snoozeInterval = intent.getIntExtra(Constants.BroadcastParams.SNOOZE_INTERVAL, 0);
+
 
             //TODO: change to different method, since expensive
             Constants.BroadcastMethods method = Constants.BroadcastMethods.values()[intent.getIntExtra(Constants.BroadcastParams.BROADCAST_METHOD, 0)];
@@ -98,10 +99,17 @@ public class ReminderService extends Service {
                 case SNOOZE :
                 {
                     Toast.makeText(getBaseContext(), "OI STOP SNOOZING!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getBaseContext(), String.valueOf(snoozeInterval),Toast.LENGTH_LONG).show();
+
+                    PendingIntent pendingIntent = PendingIntent.getBroadcast(getBaseContext(),0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                    AlarmManager alarmManager = (AlarmManager)getSystemService(Activity.ALARM_SERVICE);
+                    alarmManager.set(AlarmManager.ELAPSED_REALTIME, snoozeInterval, pendingIntent);
+
                 }
             }
         }
-    }
+    };
 
     private final class ServiceHandler extends Handler
     {

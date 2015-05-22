@@ -80,7 +80,6 @@ public class MainMenuActivity extends Activity {
         });
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -102,7 +101,6 @@ public class MainMenuActivity extends Activity {
 
         return super.onOptionsItemSelected(item);
     }
-
 
     public void addActivityBtn(View view)
     {
@@ -170,8 +168,9 @@ public class MainMenuActivity extends Activity {
                 int snoozeInterval = (timeSinceMidnight/1000)/60 - (snoozeHour/60 + snoozeMinute);
 
                 Intent snoozeIntent = new Intent(Constants.Service.SERVICE_BROADCAST);
-                snoozeIntent.putExtra("snoozeInterval", snoozeInterval);
                 snoozeIntent.putExtra(Constants.BroadcastParams.BROADCAST_METHOD,Constants.BroadcastMethods.SNOOZE);
+                snoozeIntent.putExtra(Constants.BroadcastParams.SNOOZE_INTERVAL, snoozeInterval);
+
                 sendBroadcast(snoozeIntent);
 
                 TextView textViewMinute = (TextView)layout.findViewById(R.id.textViewMinute);
