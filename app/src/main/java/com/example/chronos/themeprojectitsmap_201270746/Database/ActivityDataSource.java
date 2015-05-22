@@ -113,7 +113,7 @@ public class ActivityDataSource {
 
         //Add data for GPS table
         values.put(ReminderContract.GPSTable.COLUMN_NAME_FRIENDLYNAME, gpsData.getName());
-        values.put(ReminderContract.GPSTable.COLUMN_NAME_GPSCOORDINATES, gpsData.getCoordinates());
+        values.put(ReminderContract.GPSTable.COLUMN_NAME_GEOLOC, gpsData.getCoordinates());
         values.put(ReminderContract.GPSTable.COLUMN_NAME_ACTIVITY_FK, activityId);
         long returnId = db.insert(ReminderContract.GPSTable.TABLE_NAME, null, values);
 
@@ -296,7 +296,7 @@ public class ActivityDataSource {
         String[] projection = {
                 ReminderContract.GPSTable._ID,
                 ReminderContract.GPSTable.COLUMN_NAME_FRIENDLYNAME,
-                ReminderContract.GPSTable.COLUMN_NAME_GPSCOORDINATES,
+                ReminderContract.GPSTable.COLUMN_NAME_GEOLOC,
                 ReminderContract.GPSTable.COLUMN_NAME_ACTIVITY_FK
         };
         String sortOrder = ReminderContract.GPSTable.COLUMN_NAME_ACTIVITY_FK + " DESC";
@@ -405,7 +405,7 @@ public class ActivityDataSource {
             gpsData.setName(cursor.getString(
                     cursor.getColumnIndex(ReminderContract.GPSTable.COLUMN_NAME_FRIENDLYNAME)));
             gpsData.setCoordinates(cursor.getString(
-                    cursor.getColumnIndex(ReminderContract.GPSTable.COLUMN_NAME_GPSCOORDINATES)));
+                    cursor.getColumnIndex(ReminderContract.GPSTable.COLUMN_NAME_GEOLOC)));
 
             gpsList.add(gpsData);
         }
@@ -492,7 +492,7 @@ public class ActivityDataSource {
         ContentValues values = new ContentValues();
 
         values.put(ReminderContract.GPSTable.COLUMN_NAME_FRIENDLYNAME, gpsData.getName());
-        values.put(ReminderContract.GPSTable.COLUMN_NAME_GPSCOORDINATES, gpsData.getCoordinates());
+        values.put(ReminderContract.GPSTable.COLUMN_NAME_GEOLOC, gpsData.getCoordinates());
 
         String  selection = ReminderContract.GPSTable._ID + " = ?";
         String[] selectionArgs = { String.valueOf(gpsData.getId()) };

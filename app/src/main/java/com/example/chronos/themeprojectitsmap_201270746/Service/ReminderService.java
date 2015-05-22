@@ -1,6 +1,9 @@
 package com.example.chronos.themeprojectitsmap_201270746.Service;
 
+import android.app.IntentService;
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.os.*;
 import android.os.Process;
@@ -28,6 +31,7 @@ public class ReminderService extends Service {
     private Looper mServiceLooper;
     private ServiceHandler mServiceHandler;
 
+
     @Override
     public IBinder onBind(Intent intent)
     {
@@ -39,7 +43,9 @@ public class ReminderService extends Service {
     public void onCreate()
     {
         Log.d(Constants.Debug.LOG_TAG, "ReminderService.onCreate");
-        HandlerThread thread = new HandlerThread(Constants.Service.SERVICE_HANDLER, Process.THREAD_PRIORITY_BACKGROUND);
+
+        HandlerThread thread = new HandlerThread("ServiceStartArguments",
+                Process.THREAD_PRIORITY_BACKGROUND);
         thread.start();
 
         mServiceLooper = thread.getLooper();
@@ -53,12 +59,10 @@ public class ReminderService extends Service {
 
         Message msg = mServiceHandler.obtainMessage();
 
-        msg.arg1 = startId;
-
         Bundle bundle = new Bundle();
-        bundle.putInt(Constants.Service.UPDATE_INTERVAL_KEY, Constants.Service.UPDATE_INTERVAL_VAL);
         bundle.putBoolean(Constants.Debug.IS_DEBUG, true);
 
+        msg.arg1 = startId;
         msg.setData(bundle);
         mServiceHandler.sendMessage(msg);
 
@@ -70,7 +74,15 @@ public class ReminderService extends Service {
     {
         Log.d(Constants.Debug.LOG_TAG, "ReminderService.onDestroy");
         super.onDestroy();
-        //Quit thread with looper.quit() ?
+    }
+
+    private final class ServiceReceiver extends BroadcastReceiver
+    {
+        public ServiceReceiver(){}
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+        }
     }
 
     private final class ServiceHandler extends Handler
@@ -102,17 +114,16 @@ public class ReminderService extends Service {
 
             if(bundle.getBoolean(Constants.Debug.IS_DEBUG, false))
             {
-                getBaseContext().deleteDatabase(ReminderDbHelper.DATABASE_NAME);
                 runTestDatabase();
-                getBaseContext().deleteDatabase(ReminderDbHelper.DATABASE_NAME);
+                stopSelf(serviceId);
             }
-
-            stopSelf(serviceId);
         }
 
-        private void runTestDatabase()
-        {
+        private void runTestDatabase() {
+
             Log.d(Constants.Debug.LOG_TAG, "Starting Database test.");
+            getBaseContext().deleteDatabase(ReminderDbHelper.DATABASE_NAME);
+
             boolean success = false;
             dataSource.open();
 
@@ -177,6 +188,7 @@ public class ReminderService extends Service {
             Log.d(Constants.Debug.LOG_TAG, "Deleted Test Activity.");
 
             dataSource.close();
+            getBaseContext().deleteDatabase(ReminderDbHelper.DATABASE_NAME);
         }
 
         public void handleReminderTimeout()
