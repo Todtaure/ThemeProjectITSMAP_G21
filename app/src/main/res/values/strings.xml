@@ -6,4 +6,13 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_main_menu">MainMenuActivity</string>
     <string name="title_activity_wizard">WizardActivity</string>
+    <string name="wizard_prevButton">Previous</string>
+    <string name="wizard_nextButton">Next</string>
+    <string name="wizard_new_activity_text">This Wizard will guide you through the creation of a new activity. Through the following pages you will be able to specify several settings for your activity</string>
+    <string name="wizard_label_activity_name">Activity name:</string>
+    <string name="wizard_hint_activity_name">e.g. running exercises</string>
+    <string name="wizard_label_activity_duration">Activity duration(mins):</string>
+    <string name="wizard_hint_activity_duration">e.g. 60</string>
+
+
 </resources>
