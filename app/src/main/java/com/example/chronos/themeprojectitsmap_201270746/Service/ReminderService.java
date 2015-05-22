@@ -103,15 +103,15 @@ public class ReminderService extends IntentService {
             if(bundle.getBoolean(Constants.Debug.IS_DEBUG, false))
             {
                 runTestDatabase();
-                getBaseContext().deleteDatabase(ReminderDbHelper.DATABASE_NAME);
+                stopSelf(serviceId);
             }
-
-            stopSelf(serviceId);
         }
 
-        private void runTestDatabase()
-        {
+        private void runTestDatabase() {
+
             Log.d(Constants.Debug.LOG_TAG, "Starting Database test.");
+            getBaseContext().deleteDatabase(ReminderDbHelper.DATABASE_NAME);
+
             boolean success = false;
             dataSource.open();
 
@@ -176,6 +176,7 @@ public class ReminderService extends IntentService {
             Log.d(Constants.Debug.LOG_TAG, "Deleted Test Activity.");
 
             dataSource.close();
+            getBaseContext().deleteDatabase(ReminderDbHelper.DATABASE_NAME);
         }
 
         public void handleReminderTimeout()
