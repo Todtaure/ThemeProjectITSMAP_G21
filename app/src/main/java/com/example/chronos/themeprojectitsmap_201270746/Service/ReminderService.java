@@ -66,7 +66,7 @@ public class ReminderService extends Service {
         Message msg = mServiceHandler.obtainMessage();
 
         Bundle bundle = new Bundle();
-        bundle.putBoolean(Constants.Debug.IS_DEBUG, true);
+        bundle.putBoolean(Constants.Debug.IS_DEBUG, false);
 
         msg.arg1 = startId;
         msg.setData(bundle);
@@ -89,6 +89,17 @@ public class ReminderService extends Service {
 
         @Override
         public void onReceive(Context context, Intent intent) {
+
+            //TODO: change to different method, since expensive
+            Constants.BroadcastMethods method = Constants.BroadcastMethods.values()[intent.getIntExtra(Constants.BroadcastParams.BROADCAST_METHOD, 0)];
+
+            switch(method)
+            {
+                case SNOOZE :
+                {
+                    Toast.makeText(getBaseContext(), "OI STOP SNOOZING!", Toast.LENGTH_LONG).show();
+                }
+            }
         }
     }
 
