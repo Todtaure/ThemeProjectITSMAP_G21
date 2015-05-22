@@ -2,6 +2,8 @@ package com.example.chronos.themeprojectitsmap_201270746.Service;
 
 import android.app.IntentService;
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.os.*;
 import android.os.Process;
@@ -25,13 +27,10 @@ import java.util.ArrayList;
 
 //Created with code snippets from http://developer.android.com/guide/components/services.html#ExtendingIntentService
 
-public class ReminderService extends IntentService {
-    ActivityDataSource dataSource;
+public class ReminderService extends Service {
+    private Looper mServiceLooper;
+    private ServiceHandler mServiceHandler;
 
-    public ReminderService()
-    {
-        super(Constants.Service.SERVICE_HANDLER);
-    }
 
     @Override
     public IBinder onBind(Intent intent)
@@ -41,28 +40,32 @@ public class ReminderService extends IntentService {
     }
 
     @Override
-    protected void onHandleIntent(Intent intent) {
-
-    }
-
-    @Override
     public void onCreate()
     {
         Log.d(Constants.Debug.LOG_TAG, "ReminderService.onCreate");
 
-        try {
-            dataSource = new ActivityDataSource(getBaseContext());
-        }
-        catch(SQLException ex)
-        {
-            Toast.makeText(getBaseContext(), Constants.Messages.ERR_DB_CONNECTION, Toast.LENGTH_LONG).show();
-        }
+        HandlerThread thread = new HandlerThread("ServiceStartArguments",
+                Process.THREAD_PRIORITY_BACKGROUND);
+        thread.start();
+
+        mServiceLooper = thread.getLooper();
+        mServiceHandler = new ServiceHandler(mServiceLooper);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
         Log.d(Constants.Debug.LOG_TAG, "ReminderService.onStartCommand");
+
+        Message msg = mServiceHandler.obtainMessage();
+
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(Constants.Debug.IS_DEBUG, true);
+
+        msg.arg1 = startId;
+        msg.setData(bundle);
+        mServiceHandler.sendMessage(msg);
+
         return START_STICKY;
     }
 
@@ -71,6 +74,15 @@ public class ReminderService extends IntentService {
     {
         Log.d(Constants.Debug.LOG_TAG, "ReminderService.onDestroy");
         super.onDestroy();
+    }
+
+    private final class ServiceReceiver extends BroadcastReceiver
+    {
+        public ServiceReceiver(){}
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+        }
     }
 
     private final class ServiceHandler extends Handler

@@ -13,6 +13,8 @@ public final class Constants {
         public static final int UPDATE_INTERVAL_VAL = 3600;
 
         public static final String SERVICE_HANDLER = "ReminderServiceHandler";
+
+        public static final String SERVICE_BROADCAST = "reminder-service-event";
     }
 
     public static abstract class Messages

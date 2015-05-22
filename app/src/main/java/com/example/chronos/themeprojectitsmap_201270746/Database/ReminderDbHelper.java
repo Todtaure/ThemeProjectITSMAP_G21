@@ -30,7 +30,7 @@ public class ReminderDbHelper extends SQLiteOpenHelper {
             "CREATE TABLE " + ReminderContract.GPSTable.TABLE_NAME + " (" +
                     ReminderContract.GPSTable._ID + INTEGER_TYPE + " PRIMARY KEY AUTOINCREMENT," +
                     ReminderContract.GPSTable.COLUMN_NAME_FRIENDLYNAME + TEXT_TYPE + NOTNULL + COMMA_SEP +
-                    ReminderContract.GPSTable.COLUMN_NAME_GPSCOORDINATES + TEXT_TYPE + NOTNULL + COMMA_SEP +
+                    ReminderContract.GPSTable.COLUMN_NAME_GEOLOC + TEXT_TYPE + NOTNULL + COMMA_SEP +
                     ReminderContract.GPSTable.COLUMN_NAME_ACTIVITY_FK + INTEGER_TYPE +
                     " REFERENCES " + ReminderContract.ActivityTable.TABLE_NAME + "("+ReminderContract.ActivityTable._ID + ")" + " ON DELETE CASCADE" +
                     " )";
