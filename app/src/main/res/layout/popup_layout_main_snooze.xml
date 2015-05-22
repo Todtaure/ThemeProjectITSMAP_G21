@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:id="@+id/popup"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:background="#F0F8FF"
+    >
+
+    <TimePicker
+        android:id="@+id/timePicker"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+    </TimePicker>
+
+    <Button
+        android:id="@+id/close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cancel"
+        android:layout_gravity="right"
+        android:layout_marginRight="40dp"
+        android:layout_below="@+id/timePicker"
+        android:layout_alignParentEnd="true" />
+
+    <Button
+        android:id="@+id/saveBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Save"
+        android:layout_gravity="left"
+        android:layout_marginLeft="40dp"
+        android:layout_below="@+id/timePicker"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Text"
+        android:id="@+id/textViewHour"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Text"
+        android:id="@+id/textViewMinute"
+        android:layout_above="@+id/textViewHour"
+        android:layout_toEndOf="@+id/saveBtn" />
+</RelativeLayout>
