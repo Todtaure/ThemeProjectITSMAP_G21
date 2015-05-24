@@ -77,7 +77,7 @@ public class WizardActivity extends ActionBarActivity {
         mPageSequence.add(new WizardNightModeFragment());
         mPageSequence.add(new WizardDontDisturbFragment());
         mPageSequence.add(new WizardGpsFragment());
-        //mPageSequence.add(new WizardReviewFragment());
+        mPageSequence.add(new WizardReviewFragment());
         currentMaxPage = mPageSequence.size();
 
         mPager = (ViewPager) findViewById(R.id.pager);

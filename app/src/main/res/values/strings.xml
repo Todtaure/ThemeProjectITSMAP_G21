@@ -27,10 +27,16 @@
     <string name="wizard_gps_title">Geo locked</string>
     <string name="wizard_gps_text">Here you can lock your activity to a specific location. By doing this you will only receive notifications if you are located at this position</string>
     <string name="wizard_gps_switch_text">Turn Geo Lock on</string>
-
-
-
-
+    <string name="wizard_review_title">Review</string>
+    <string name="wizard_review_item_name">Name: </string>
+    <string name="wizard_review_item_duration">Duration: </string>
+    <string name="wizard_review_item_mins"> mins</string>
+    <string name="wizard_review_item_night_mode">Night Mode</string>
+    <string name="wizard_review_item_none">None</string>
+    <string name="wizard_review_item_geo_locked">Geo Locked</string>
+    <string name="wizard_review_item_yes">Yes</string>
+    <string name="wizard_review_item_no">No</string>
+    <string name="wizard_review_not_disturb">Not disturb</string>
 
 
 
