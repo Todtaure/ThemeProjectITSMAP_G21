@@ -24,6 +24,11 @@
     <string name="wizard_time_slot_1">Time slot 1</string>
     <string name="wizard_time_slot_2">Time slot 2</string>
     <string name="wizard_time_slot_3">Time slot 3</string>
+    <string name="wizard_gps_title">Geo locked</string>
+    <string name="wizard_gps_text">Here you can lock your activity to a specific location. By doing this you will only receive notifications if you are located at this position</string>
+    <string name="wizard_gps_switch_text">Turn Geo Lock on</string>
+
+
 
 
 
