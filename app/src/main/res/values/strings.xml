@@ -18,6 +18,14 @@
         where you don\'t want to be disturbed</string>
     <string name="wizard_timepicker_from">From: </string>
     <string name="wizard_timepicker_to">To: </string>
+    <string name="wizard_dont_disturb_mode_title">Don\'t disturb</string>
+    <string name="wizard_dont_disturb_mode_text">Here you can specify time slots during the day
+        where you do not want to be disturbed (e.g. working hours)</string>
+    <string name="wizard_time_slot_1">Time slot 1</string>
+    <string name="wizard_time_slot_2">Time slot 2</string>
+    <string name="wizard_time_slot_3">Time slot 3</string>
+
+
 
 
 
