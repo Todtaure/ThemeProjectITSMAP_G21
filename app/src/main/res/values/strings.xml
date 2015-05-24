@@ -13,6 +13,13 @@
     <string name="wizard_hint_activity_name">e.g. running exercises</string>
     <string name="wizard_label_activity_duration">Activity duration(mins):</string>
     <string name="wizard_hint_activity_duration">e.g. 60</string>
+    <string name="wizard_night_mode_title">Night Mode</string>
+    <string name="wizard_night_mode_text">Most people sleep at some time. So please specify a time period
+        where you don\'t want to be disturbed</string>
+    <string name="wizard_timepicker_from">From: </string>
+    <string name="wizard_timepicker_to">To: </string>
+
+
 
 
 </resources>
