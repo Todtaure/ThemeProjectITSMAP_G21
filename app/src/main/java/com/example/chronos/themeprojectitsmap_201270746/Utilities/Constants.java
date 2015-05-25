@@ -41,6 +41,12 @@ public final class Constants {
 
         // Manuel snooze interval from mainMenuActivity
         public static final String SNOOZE_INTERVAL = "snooze_interval";
+
+        //Alarm types
+        public static final String ALARM_KEY = "ALARM_TYPE";
+
+        public static final String ALARM_TYPE_SNOOZE = "ALARM_SNOOZE";
+        public static final String ALARM_TYPE_NORMAL = "ALARM_NORMAL";
     }
 
     public static enum BroadcastMethods

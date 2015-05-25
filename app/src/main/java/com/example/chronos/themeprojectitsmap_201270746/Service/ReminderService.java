@@ -90,7 +90,6 @@ public class ReminderService extends Service {
             //Intent receiveIntent = new Intent(context.getApplicationContext(), MainMenuActivity.class);
             int snoozeInterval = intent.getIntExtra(Constants.BroadcastParams.SNOOZE_INTERVAL, 0);
 
-
             //TODO: change to different method, since expensive
             Constants.BroadcastMethods method = Constants.BroadcastMethods.values()[intent.getIntExtra(Constants.BroadcastParams.BROADCAST_METHOD, 0)];
 
@@ -98,17 +97,13 @@ public class ReminderService extends Service {
             {
                 case SNOOZE :
                 {
-                    Toast.makeText(getBaseContext(), "OI STOP SNOOZING!", Toast.LENGTH_LONG).show();
                     Toast.makeText(getBaseContext(), String.valueOf(snoozeInterval),Toast.LENGTH_LONG).show();
 
                     PendingIntent pendingIntent = PendingIntent.getBroadcast(getBaseContext(),0, intent, 0);
 
                     AlarmManager alarmManager = (AlarmManager)getSystemService(Activity.ALARM_SERVICE);
 
-
                     alarmManager.setExact(AlarmManager.RTC_WAKEUP, snoozeInterval*1000*60,pendingIntent);
-                    //alarmManager.set(AlarmManager.RTC, snoozeInterval*60*1000, pendingIntent);
-
                 }
             }
         }
@@ -118,6 +113,7 @@ public class ReminderService extends Service {
     {
         private ActivityDataSource dataSource;
         private int serviceId;
+        private AlarmManager alarmManager;
 
         public ServiceHandler(Looper looper) {
 
@@ -129,6 +125,7 @@ public class ReminderService extends Service {
             {
                 Toast.makeText(getBaseContext(), Constants.Messages.ERR_DB_CONNECTION, Toast.LENGTH_LONG).show();
             }
+            alarmManager = (AlarmManager)getSystemService(Activity.ALARM_SERVICE);
         }
 
         @Override
@@ -220,8 +217,13 @@ public class ReminderService extends Service {
             getBaseContext().deleteDatabase(ReminderDbHelper.DATABASE_NAME);
         }
 
-        public void handleReminderTimeout()
+        private void setAlarm(int minutes, String type)
         {
+            Intent intent =  new Intent();
+            intent.putExtra(Constants.BroadcastParams.ALARM_KEY, type);
+            PendingIntent pintent = PendingIntent.getService(getBaseContext(), 0,intent, 0);
+
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, minutes*6000, pintent);
         }
     }
 }
