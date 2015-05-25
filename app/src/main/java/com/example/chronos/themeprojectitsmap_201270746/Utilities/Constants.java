@@ -7,6 +7,9 @@ import java.util.Enumeration;
  * Created by Chronos on 20/05/2015.
  */
 public final class Constants {
+
+    public static final String ACTIVITY_ID = "ACTIVITY_ID";
+
     public static abstract class Service
     {
         public static final String UPDATE_INTERVAL_KEY = "UPDATE_INTERVAL";
