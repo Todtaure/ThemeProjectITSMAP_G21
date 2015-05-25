@@ -74,10 +74,10 @@ public class WizardActivity extends ActionBarActivity {
         // Adds fragments to a List used by WizardPagerAdapter(ViewPager)
         mPageSequence = new ArrayList<>();
         mPageSequence.add(new WizardActivityFragment());
-        //mPageSequence.add(new WizardNightModeFragment());
-        //mPageSequence.add(new WizardDontDisturbFragment());
-        //mPageSequence.add(new WizardGpsFragment());
-        //mPageSequence.add(new WizardReviewFragment());
+        mPageSequence.add(new WizardNightModeFragment());
+        mPageSequence.add(new WizardDontDisturbFragment());
+        mPageSequence.add(new WizardGpsFragment());
+        mPageSequence.add(new WizardReviewFragment());
         currentMaxPage = mPageSequence.size();
 
         mPager = (ViewPager) findViewById(R.id.pager);

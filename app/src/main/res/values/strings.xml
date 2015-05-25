@@ -13,6 +13,32 @@
     <string name="wizard_hint_activity_name">e.g. running exercises</string>
     <string name="wizard_label_activity_duration">Activity duration(mins):</string>
     <string name="wizard_hint_activity_duration">e.g. 60</string>
+    <string name="wizard_night_mode_title">Night Mode</string>
+    <string name="wizard_night_mode_text">Most people sleep at some time. So please specify a time period
+        where you don\'t want to be disturbed</string>
+    <string name="wizard_timepicker_from">From: </string>
+    <string name="wizard_timepicker_to">To: </string>
+    <string name="wizard_dont_disturb_mode_title">Don\'t disturb</string>
+    <string name="wizard_dont_disturb_mode_text">Here you can specify time slots during the day
+        where you do not want to be disturbed (e.g. working hours)</string>
+    <string name="wizard_time_slot_1">Time slot 1</string>
+    <string name="wizard_time_slot_2">Time slot 2</string>
+    <string name="wizard_time_slot_3">Time slot 3</string>
+    <string name="wizard_gps_title">Geo locked</string>
+    <string name="wizard_gps_text">Here you can lock your activity to a specific location. By doing this you will only receive notifications if you are located at this position</string>
+    <string name="wizard_gps_switch_text">Turn Geo Lock on</string>
+    <string name="wizard_review_title">Review</string>
+    <string name="wizard_review_item_name">Name: </string>
+    <string name="wizard_review_item_duration">Duration: </string>
+    <string name="wizard_review_item_mins"> mins</string>
+    <string name="wizard_review_item_night_mode">Night Mode</string>
+    <string name="wizard_review_item_none">None</string>
+    <string name="wizard_review_item_geo_locked">Geo Locked</string>
+    <string name="wizard_review_item_yes">Yes</string>
+    <string name="wizard_review_item_no">No</string>
+    <string name="wizard_review_not_disturb">Not disturb</string>
+
+
 
 <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
