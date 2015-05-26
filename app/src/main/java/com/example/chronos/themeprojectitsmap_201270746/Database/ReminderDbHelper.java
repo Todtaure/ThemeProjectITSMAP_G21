@@ -24,7 +24,8 @@ public class ReminderDbHelper extends SQLiteOpenHelper {
                     ReminderContract.ActivityTable.COLUMN_NAME_MINTIMEINTERVAL + INTEGER_TYPE + NOTNULL  + COMMA_SEP +
                     ReminderContract.ActivityTable.COLUMN_NAME_MAXREMINDERS + INTEGER_TYPE + COMMA_SEP +
                     ReminderContract.ActivityTable.COLUMN_NAME_REMINDERCOUNTER + INTEGER_TYPE + NOTNULL + COMMA_SEP +
-                    ReminderContract.ActivityTable.COLUMN_NAME_DONE + INTEGER_TYPE + NOTNULL +
+                    ReminderContract.ActivityTable.COLUMN_NAME_DONE + INTEGER_TYPE + NOTNULL + COMMA_SEP +
+                    ReminderContract.ActivityTable.COLUMN_NAME_NIGHTMODE + TEXT_TYPE +
                     " )";
     private static final String SQL_CREATE_ENTRIES_GPS =
             "CREATE TABLE " + ReminderContract.GPSTable.TABLE_NAME + " (" +

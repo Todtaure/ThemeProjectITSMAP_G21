@@ -8,6 +8,9 @@
 
     <header
         android:fragment="com.example.chronos.themeprojectitsmap_201270746.SettingsActivity$NotificationPreferenceFragment"
-        android:title="@string/pref_header_notifications" />
+        android:title="@string/pref_header_dnd" />
 
+    <header
+        android:fragment="com.example.chronos.themeprojectitsmap_201270746.SettingsActivity$NotificationPreferenceFragment"
+        android:title="@string/pref_header_night_mode" />
 </preference-headers>

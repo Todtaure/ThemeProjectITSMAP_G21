@@ -19,11 +19,18 @@
     <string name="pref_key_activity_duration">activity_duration</string>
     <string name="pref_default_activity_duration">eg. 60 (minutes)</string>
 
-    <!-- Example settings for Notifications -->
-    <string name="pref_header_notifications">Notifications</string>
+    <string name="pref_title_gps_list">Locations</string>
+    <string name="pref_key_gps_list">activity_locations</string>
 
-    <string name="pref_title_dnd_interval">Do Not Disturb</string>
-    <string name="pref_title_from">From</string>
-    <string name="pref_title_to">To</string>
+    <!-- Example settings for Notifications -->
+    <string name="pref_header_dnd">Do Not Disturb</string>
+
+    <string name="pref_title_from">Start</string>
+    <string name="pref_title_to">End</string>
+
+    <string name="pref_header_night_mode">Night Mode</string>
+
+    <string name="pref_title_night_from">Start</string>
+    <string name="pref_title_night_to">End</string>
 
 </resources>
