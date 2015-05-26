@@ -50,7 +50,7 @@ public class ReminderDbHelper extends SQLiteOpenHelper {
 
 
     // If you change the database schema, you must increment the database version.
-    public static final int DATABASE_VERSION = 2;
+    public static final int DATABASE_VERSION = 15;
     public static final String DATABASE_NAME = "ReminderApp.db";
 
     public ReminderDbHelper(Context context) {
@@ -68,7 +68,7 @@ public class ReminderDbHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // This database is only a cache for online data, so its upgrade policy is
         // to simply to discard the data and start over
-        Log.d(Constants.Debug.LOG_TAG, "ReminderDbHelper.onUpgrade");
+        Log.d(Constants.Debug.LOG_TAG, "ReminderDbHelper.onUpgrade" + db.getVersion());
         db.execSQL(SQL_DELETE_ENTRIES);
         db.setVersion(newVersion);
         onCreate(db);
