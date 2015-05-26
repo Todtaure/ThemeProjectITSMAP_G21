@@ -129,9 +129,7 @@ public class WizardActivity extends ActionBarActivity {
                     if (activityObject.nightModeTimeSlot.isSet){
                         String startTimeoffInterval = getTimeFormat(activityObject.nightModeTimeSlot.startTime.get(Calendar.HOUR_OF_DAY),activityObject.nightModeTimeSlot.startTime.get(Calendar.MINUTE));
                         String endTimeoffInterval = getTimeFormat(activityObject.nightModeTimeSlot.endTime.get(Calendar.HOUR_OF_DAY),activityObject.nightModeTimeSlot.endTime.get(Calendar.MINUTE));
-                        activityModel.setNightMode(startTimeoffInterval + "," + endTimeoffInterval);
-                    }
-                    
+                        activityModel.setNightMode(startTimeoffInterval + "," + endTimeoffInterval);                    }
                     for (TimeSlot timeSlot : activityObject.notDisturbTimeSlots) {
                         if (timeSlot.isSet){
                             OffIntervalsModel offIntervalsModel = new OffIntervalsModel();
