@@ -68,7 +68,6 @@ public class ReminderService extends Service {
 
         mServiceLooper = thread.getLooper();
         mServiceHandler = new ServiceHandler(mServiceLooper);
-
     }
 
     @Override

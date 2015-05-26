@@ -13,14 +13,18 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
@@ -30,14 +34,19 @@ import android.widget.Toast;
 
 import com.example.chronos.themeprojectitsmap_201270746.Database.ActivityDataSource;
 import com.example.chronos.themeprojectitsmap_201270746.Database.Models.ActivityModel;
+import com.example.chronos.themeprojectitsmap_201270746.Database.Models.GPSModel;
+import com.example.chronos.themeprojectitsmap_201270746.Database.Models.OffIntervalsModel;
 import com.example.chronos.themeprojectitsmap_201270746.Service.ReminderService;
 import com.example.chronos.themeprojectitsmap_201270746.Utilities.Constants;
 import com.example.chronos.themeprojectitsmap_201270746.Wizard.WizardActivity;
 
 import org.apache.http.conn.ConnectionKeepAliveStrategy;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 
 public class MainMenuActivity extends Activity {
@@ -47,12 +56,22 @@ public class MainMenuActivity extends Activity {
     private Switch offSwitch;
     private Integer snoozeHour;
     private Integer snoozeMinute;
+    private ActivityDataSource dataSource;
+    private ArrayList activities;
+    private ActivityListAdapter activityAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
         Button btn_show = (Button) findViewById(R.id.snoozeButton);
+
+        try {
+            dataSource = new ActivityDataSource(getBaseContext());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
         btn_show.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,7 +99,41 @@ public class MainMenuActivity extends Activity {
                 }
             }
         });
+
+       //ActivityModel mainActivityModel = new ActivityModel();
+        dataSource.open();
+//        ActivityModel testActivity = new ActivityModel();
+//
+//        testActivity.setName("Test Aktivitet");
+//        testActivity.setMinTimeInterval(30);
+//        testActivity.setMaxReminders(3);
+//
+//        boolean success = dataSource.insertActivity(testActivity);
+//
+//        if (!success)
+//        {
+//            Log.d(Constants.Messages.ERR_DB_INSERT, "No Success!");
+//            dataSource.close();
+//            return;
+//        }
+
+        activities = new ArrayList<>();
+        activities = dataSource.getAllActivities();
+
+        dataSource.close();
+
+        setActivityList();
     }
+
+    public void setActivityList()
+    {
+        ListView activityList = (ListView)findViewById(R.id.activityList);
+        activityAdapter = new ActivityListAdapter(getApplicationContext(), R.layout.activity_list, activities);
+
+        // Here, you set the data in your ListView
+        activityList.setAdapter(activityAdapter);
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

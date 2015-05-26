@@ -24,7 +24,7 @@
         android:layout_above="@+id/offSwitch"
         android:layout_centerHorizontal="true"
         android:onClick="snoozeBtn"
-         />
+        />
 
     <TextView
         android:layout_width="wrap_content"
@@ -58,11 +58,12 @@
         android:onClick="addActivityBtn" />
 
     <ListView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/listView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/activityList"
         android:layout_below="@+id/header"
-        android:layout_alignStart="@+id/header"
-        android:layout_above="@+id/addButton" />
-
+        android:layout_above="@+id/addButton"
+        android:background="@drawable/activity_list_border"
+        android:padding="1dp"
+    />
 </RelativeLayout>
