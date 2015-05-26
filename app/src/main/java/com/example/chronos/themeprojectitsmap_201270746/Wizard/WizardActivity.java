@@ -15,9 +15,15 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.example.chronos.themeprojectitsmap_201270746.Database.ActivityDataSource;
+import com.example.chronos.themeprojectitsmap_201270746.Database.Models.ActivityModel;
+import com.example.chronos.themeprojectitsmap_201270746.Database.Models.OffIntervalsModel;
+import com.example.chronos.themeprojectitsmap_201270746.MainMenuActivity;
 import com.example.chronos.themeprojectitsmap_201270746.R;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class WizardActivity extends ActionBarActivity {
@@ -43,6 +49,7 @@ public class WizardActivity extends ActionBarActivity {
     private boolean isLastPage = false;
 
     public WizardData activityObject;
+    ActivityDataSource activityDataSource;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +58,17 @@ public class WizardActivity extends ActionBarActivity {
 
         // Create object for wizard user information (singleton) used by wizard fragments
         activityObject = new WizardData();
+
+        try{
+            activityDataSource = new ActivityDataSource(this);
+        }
+        catch ( SQLException e){
+            Toast.makeText(getBaseContext(), "Failed to create sql instance",
+                    Toast.LENGTH_SHORT).show();
+        }
+
+
+
 
         // Create List structure for not disturb time slots in activityObject
         notDisturbTimeSlotList = new ArrayList<>();
@@ -103,8 +121,38 @@ public class WizardActivity extends ActionBarActivity {
                 if (isLastPage != true) {
                     mPager.setCurrentItem(++currentPage - 1);
                 } else {
-                    Toast.makeText(getBaseContext(), "Gem data",
-                            Toast.LENGTH_SHORT).show();
+                    // Save activity in DB
+                    ActivityModel activityModel = new ActivityModel();
+                    activityModel.setName(activityObject.getActivityName());
+                    activityModel.setMinTimeInterval(activityObject.getActivityDuration());
+                    List<OffIntervalsModel> offIntervalsModels = new ArrayList<>();
+                    if (activityObject.nightModeTimeSlot.isSet){
+                        String startTimeoffInterval = getTimeFormat(activityObject.nightModeTimeSlot.startTime.get(Calendar.HOUR_OF_DAY),activityObject.nightModeTimeSlot.startTime.get(Calendar.MINUTE));
+                        String endTimeoffInterval = getTimeFormat(activityObject.nightModeTimeSlot.endTime.get(Calendar.HOUR_OF_DAY),activityObject.nightModeTimeSlot.endTime.get(Calendar.MINUTE));
+                        activityModel.setNightMode(startTimeoffInterval + "," + endTimeoffInterval);
+                    }
+                    
+                    for (TimeSlot timeSlot : activityObject.notDisturbTimeSlots) {
+                        if (timeSlot.isSet){
+                            OffIntervalsModel offIntervalsModel = new OffIntervalsModel();
+                            String startTimeoffInterval = getTimeFormat(timeSlot.startTime.get(Calendar.HOUR_OF_DAY),timeSlot.startTime.get(Calendar.MINUTE));
+                            String endTimeoffInterval = getTimeFormat(timeSlot.endTime.get(Calendar.HOUR_OF_DAY),timeSlot.endTime.get(Calendar.MINUTE));
+                            offIntervalsModel.setOffInterval(startTimeoffInterval + "," + endTimeoffInterval);
+                            offIntervalsModels.add(offIntervalsModel);
+                        }
+                    }
+                    if (offIntervalsModels.size() != 0) {
+                        activityModel.setOffIntervals(offIntervalsModels);
+                    }
+                    activityDataSource.open();
+
+                    if (activityDataSource.insertActivity(activityModel)) {
+                        Toast.makeText(getBaseContext(), "The activity has been saved",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                    activityDataSource.close();
+
+                    finish();
                 }
 
             }
