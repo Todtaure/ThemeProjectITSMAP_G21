@@ -51,7 +51,10 @@ public final class Constants {
 
     public static enum BroadcastMethods
     {
-        SNOOZE, ALARM_WAKEUP
+        SNOOZE,
+        ALARM_WAKEUP,
+        ACTIVITY_UPDATED,
+        ACTIVITY_STATE_CHANGE
     }
 
 
