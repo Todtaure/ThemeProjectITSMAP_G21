@@ -36,6 +36,9 @@ public class ReminderService extends Service {
     private Looper mServiceLooper;
     private ServiceHandler mServiceHandler;
     private int snoozeInterval;
+    private ActivityDataSource dataSource;
+    private AlarmManager alarmManager;
+    private int serviceId;
 
     @Override
     public IBinder onBind(Intent intent)
@@ -49,12 +52,23 @@ public class ReminderService extends Service {
     {
         Log.d(Constants.Debug.LOG_TAG, "ReminderService.onCreate");
 
+        try {
+            dataSource = new ActivityDataSource(getBaseContext());
+        }
+        catch(SQLException ex)
+        {
+            Toast.makeText(getBaseContext(), Constants.Messages.ERR_DB_CONNECTION, Toast.LENGTH_LONG).show();
+        }
+        alarmManager = (AlarmManager)getSystemService(Activity.ALARM_SERVICE);
+
+
         HandlerThread thread = new HandlerThread("ServiceStartArguments",
                 Process.THREAD_PRIORITY_BACKGROUND);
         thread.start();
 
         mServiceLooper = thread.getLooper();
         mServiceHandler = new ServiceHandler(mServiceLooper);
+
     }
 
     @Override
@@ -65,6 +79,7 @@ public class ReminderService extends Service {
         registerReceiver(ServiceReceiver, new IntentFilter(Constants.Service.SERVICE_BROADCAST));
 
         Message msg = mServiceHandler.obtainMessage();
+        serviceId = startId;
 
         Bundle bundle = new Bundle();
         bundle.putBoolean(Constants.Debug.IS_DEBUG, false);
@@ -84,6 +99,16 @@ public class ReminderService extends Service {
         unregisterReceiver(ServiceReceiver);
     }
 
+    private void setAlarm(int minutes, Constants.BroadcastMethods type)
+    {
+        Intent intent =  new Intent(Constants.Service.SERVICE_BROADCAST);
+        intent.putExtra(Constants.BroadcastParams.BROADCAST_METHOD, type.ordinal());
+
+        PendingIntent pintent = PendingIntent.getBroadcast(this, 0, intent, 0);
+
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, minutes * 60 * 1000, pintent);
+    }
+
     private BroadcastReceiver ServiceReceiver = new BroadcastReceiver()
     {
         @Override
@@ -96,7 +121,14 @@ public class ReminderService extends Service {
             switch(method)
             {
                 case SNOOZE : {
+                    setAlarm(snoozeInterval, Constants.BroadcastMethods.ALARM_WAKEUP);
+                    //Toast.makeText(getBaseContext(), String.valueOf(snoozeInterval), Toast.LENGTH_LONG).show();
+                    break;
+                }
+
+                case ALARM_WAKEUP: {
                     Toast.makeText(getBaseContext(), String.valueOf(snoozeInterval), Toast.LENGTH_LONG).show();
+                    break;
                 }
             }
         }
@@ -109,7 +141,6 @@ public class ReminderService extends Service {
         private AlarmManager alarmManager;
 
         public ServiceHandler(Looper looper) {
-
             super(looper);
             try {
                 dataSource = new ActivityDataSource(getBaseContext());
@@ -210,13 +241,6 @@ public class ReminderService extends Service {
             getBaseContext().deleteDatabase(ReminderDbHelper.DATABASE_NAME);
         }
 
-        private void setAlarm(int minutes, String type)
-        {
-            Intent intent =  new Intent();
-            intent.putExtra(Constants.BroadcastParams.ALARM_KEY, type);
-            PendingIntent pintent = PendingIntent.getService(getBaseContext(), 0,intent, 0);
 
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, minutes*6000, pintent);
-        }
     }
 }
