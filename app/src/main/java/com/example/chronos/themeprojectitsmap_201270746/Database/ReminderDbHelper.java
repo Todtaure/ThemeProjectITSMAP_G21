@@ -70,6 +70,7 @@ public class ReminderDbHelper extends SQLiteOpenHelper {
         // to simply to discard the data and start over
         Log.d(Constants.Debug.LOG_TAG, "ReminderDbHelper.onUpgrade");
         db.execSQL(SQL_DELETE_ENTRIES);
+        db.setVersion(newVersion);
         onCreate(db);
     }
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
