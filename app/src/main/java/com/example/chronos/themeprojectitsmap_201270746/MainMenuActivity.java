@@ -28,6 +28,8 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.example.chronos.themeprojectitsmap_201270746.Database.ActivityDataSource;
+import com.example.chronos.themeprojectitsmap_201270746.Database.Models.ActivityModel;
 import com.example.chronos.themeprojectitsmap_201270746.Service.ReminderService;
 import com.example.chronos.themeprojectitsmap_201270746.Utilities.Constants;
 import com.example.chronos.themeprojectitsmap_201270746.Wizard.WizardActivity;
@@ -165,10 +167,10 @@ public class MainMenuActivity extends Activity {
                 String sinceMidnight = Long.toString((currentTime.getTimeInMillis() + offset) %  (24 * 60 * 60 * 1000));
                 int timeSinceMidnight = Integer.parseInt(sinceMidnight);
 
-                int snoozeInterval = (timeSinceMidnight/1000)/60 - (snoozeHour/60 + snoozeMinute);
+                int snoozeInterval = (snoozeHour*60 + snoozeMinute) - (timeSinceMidnight/1000)/60;
 
                 Intent snoozeIntent = new Intent(Constants.Service.SERVICE_BROADCAST);
-                snoozeIntent.putExtra(Constants.BroadcastParams.BROADCAST_METHOD,Constants.BroadcastMethods.SNOOZE);
+                snoozeIntent.putExtra(Constants.BroadcastParams.BROADCAST_METHOD,Constants.BroadcastMethods.SNOOZE.ordinal());
                 snoozeIntent.putExtra(Constants.BroadcastParams.SNOOZE_INTERVAL, snoozeInterval);
 
                 sendBroadcast(snoozeIntent);
