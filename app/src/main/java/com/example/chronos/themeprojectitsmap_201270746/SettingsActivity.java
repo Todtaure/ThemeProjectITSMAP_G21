@@ -2,6 +2,8 @@ package com.example.chronos.themeprojectitsmap_201270746;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -16,8 +18,16 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
 import android.text.TextUtils;
+import android.view.View;
+import android.widget.Toast;
 
 
+import com.example.chronos.themeprojectitsmap_201270746.Database.ActivityDataSource;
+import com.example.chronos.themeprojectitsmap_201270746.Database.Models.ActivityModel;
+import com.example.chronos.themeprojectitsmap_201270746.Database.ReminderDbHelper;
+import com.example.chronos.themeprojectitsmap_201270746.Utilities.Constants;
+
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -62,27 +72,56 @@ public class SettingsActivity extends PreferenceActivity {
         // use the older PreferenceActivity APIs.
 
         // Add 'general' preferences.
+        PreferenceCategory fakeHeader = new PreferenceCategory(this);
+        fakeHeader.setTitle(R.string.pref_header_general);
+        getPreferenceScreen().addPreference(fakeHeader);
         addPreferencesFromResource(R.xml.pref_general);
 
         // Add 'notifications' preferences, and a corresponding header.
-        PreferenceCategory fakeHeader = new PreferenceCategory(this);
+        fakeHeader = new PreferenceCategory(this);
         fakeHeader.setTitle(R.string.pref_header_notifications);
         getPreferenceScreen().addPreference(fakeHeader);
         addPreferencesFromResource(R.xml.pref_notification);
 
-        // Add 'data and sync' preferences, and a corresponding header.
-        fakeHeader = new PreferenceCategory(this);
-        fakeHeader.setTitle(R.string.pref_header_data_sync);
-        getPreferenceScreen().addPreference(fakeHeader);
-        addPreferencesFromResource(R.xml.pref_data_sync);
-
         // Bind the summaries of EditText/List/Dialog/Ringtone preferences to
         // their values. When their values change, their summaries are updated
         // to reflect the new value, per the Android Design guidelines.
-        bindPreferenceSummaryToValue(findPreference("example_text"));
-        bindPreferenceSummaryToValue(findPreference("example_list"));
-        bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
-        bindPreferenceSummaryToValue(findPreference("sync_frequency"));
+        bindPreferenceSummaryToValue(findPreference("activity_name"));
+        bindPreferenceSummaryToValue(findPreference("activity_duration"));
+
+        Intent intent = getIntent();
+        int activityId = intent.getIntExtra(Constants.ACTIVITY_ID, -1);
+
+        if(activityId == -1)
+        {
+            Toast.makeText(getBaseContext(), "No Activity attached.", Toast.LENGTH_LONG).show();
+            return;
+        }
+        ActivityDataSource dbHelper;
+        try {
+            dbHelper = new ActivityDataSource(getBaseContext());
+        }
+        catch (SQLException ex)
+        {
+            Toast.makeText(getBaseContext(), Constants.Messages.ERR_DB_CONNECTION, Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        dbHelper.open();
+        ActivityModel activity = dbHelper.getActivityById(activityId);
+
+        if(activity == null)
+        {
+            Toast.makeText(getBaseContext(), Constants.Messages.ERR_DB_READ, Toast.LENGTH_LONG).show();
+            return;
+        }
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        SharedPreferences.Editor editor = settings.edit();
+
+        editor.putString("activity_name", activity.getName());
+        editor.putInt("pref_key_activity_duration", activity.getMinTimeInterval());
+        editor.putBoolean("pref_key_gps_status", !activity.getGpsData().isEmpty());
+        editor.commit();
     }
 
     /**
@@ -147,29 +186,8 @@ public class SettingsActivity extends PreferenceActivity {
                                 ? listPreference.getEntries()[index]
                                 : null);
 
-            } else if (preference instanceof RingtonePreference) {
-                // For ringtone preferences, look up the correct display value
-                // using RingtoneManager.
-                if (TextUtils.isEmpty(stringValue)) {
-                    // Empty values correspond to 'silent' (no ringtone).
-                    preference.setSummary(R.string.pref_ringtone_silent);
-
-                } else {
-                    Ringtone ringtone = RingtoneManager.getRingtone(
-                            preference.getContext(), Uri.parse(stringValue));
-
-                    if (ringtone == null) {
-                        // Clear the summary if there was a lookup error.
-                        preference.setSummary(null);
-                    } else {
-                        // Set the summary to reflect the new ringtone display
-                        // name.
-                        String name = ringtone.getTitle(preference.getContext());
-                        preference.setSummary(name);
-                    }
-                }
-
-            } else {
+            }
+            else {
                 // For all other preferences, set the summary to the value's
                 // simple string representation.
                 preference.setSummary(stringValue);
@@ -214,8 +232,8 @@ public class SettingsActivity extends PreferenceActivity {
             // to their values. When their values change, their summaries are
             // updated to reflect the new value, per the Android Design
             // guidelines.
-            bindPreferenceSummaryToValue(findPreference("example_text"));
-            bindPreferenceSummaryToValue(findPreference("example_list"));
+            bindPreferenceSummaryToValue(findPreference("activity_name"));
+            bindPreferenceSummaryToValue(findPreference("activity_duration"));
         }
     }
 
@@ -238,22 +256,8 @@ public class SettingsActivity extends PreferenceActivity {
         }
     }
 
-    /**
-     * This fragment shows data and sync preferences only. It is used when the
-     * activity is showing a two-pane settings UI.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static class DataSyncPreferenceFragment extends PreferenceFragment {
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_data_sync);
+    public void setDNDClick(View view)
+    {
 
-            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
-            // to their values. When their values change, their summaries are
-            // updated to reflect the new value, per the Android Design
-            // guidelines.
-            bindPreferenceSummaryToValue(findPreference("sync_frequency"));
-        }
     }
 }

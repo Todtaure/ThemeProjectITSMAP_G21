@@ -7,6 +7,9 @@ import java.util.Enumeration;
  * Created by Chronos on 20/05/2015.
  */
 public final class Constants {
+
+    public static final String ACTIVITY_ID = "ACTIVITY_ID";
+
     public static abstract class Service
     {
         public static final String UPDATE_INTERVAL_KEY = "UPDATE_INTERVAL";
@@ -38,6 +41,12 @@ public final class Constants {
 
         // Manuel snooze interval from mainMenuActivity
         public static final String SNOOZE_INTERVAL = "snooze_interval";
+
+        //Alarm types
+        public static final String ALARM_KEY = "ALARM_TYPE";
+
+        public static final String ALARM_TYPE_SNOOZE = "ALARM_SNOOZE";
+        public static final String ALARM_TYPE_NORMAL = "ALARM_NORMAL";
     }
 
     public static enum BroadcastMethods
