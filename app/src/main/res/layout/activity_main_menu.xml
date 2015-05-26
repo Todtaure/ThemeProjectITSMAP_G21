@@ -66,6 +66,7 @@
         android:layout_above="@+id/addButton"
         android:background="@drawable/activity_list_border"
         android:padding="1dp"
+        android:clickable="true"
     />
 
 </RelativeLayout>

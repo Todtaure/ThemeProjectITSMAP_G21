@@ -13,6 +13,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.internal.widget.AdapterViewCompat;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -20,6 +21,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -59,7 +61,7 @@ public class MainMenuActivity extends Activity {
     private ActivityDataSource dataSource;
     private ArrayList activities;
     private ActivityListAdapter activityAdapter;
-
+    private ListView activityList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,6 +102,29 @@ public class MainMenuActivity extends Activity {
             e.printStackTrace();
         }
 
+//        activityList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//
+//
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//
+//            }
+//
+//            @Override
+//            public void onItemClick(AdapterView<?> adapter, View v, int position) {
+//
+//                ItemClicked item = adapter.getItem(position);
+//
+//                Intent intent = new Intent(Activity.this, destinationActivity.class);
+////based on item add info to intent
+//                startActivity(intent);
+//
+//            }
+//
+//
+//        });
+
+
     }
 
     @Override
@@ -135,12 +160,14 @@ public class MainMenuActivity extends Activity {
 
     public void setActivityList()
     {
-        ListView activityList = (ListView)findViewById(R.id.activityList);
+        activityList = (ListView)findViewById(R.id.activityList);
         activityAdapter = new ActivityListAdapter(getApplicationContext(), R.layout.activity_list, activities);
 
         // Here, you set the data in your ListView
         activityList.setAdapter(activityAdapter);
+
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
