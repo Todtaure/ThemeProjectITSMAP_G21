@@ -23,7 +23,8 @@
         android:dependency="@string/pref_key_gps_status"
         android:title="@string/pref_title_gps_list"
         android:key="@string/pref_key_gps_list"
-        android:entries="@array/geolocation_defaults">
+        android:entries="@array/geolocation_defaults"
+        android:entryValues="@array/geolocation_defaults">
     </ListPreference>
 
 </PreferenceScreen>

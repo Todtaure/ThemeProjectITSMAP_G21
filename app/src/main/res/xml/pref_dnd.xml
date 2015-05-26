@@ -9,9 +9,10 @@
         android:title="@string/pref_title_to"/>
 
     <ListPreference
-        android:name="@string/pref_title_dnd_list"
+        android:title="@string/pref_title_dnd_list"
         android:key="@string/pref_key_dnd_list"
-        android:entries="@array/default_dnd">
+        android:entries="@array/default_dnd"
+        android:entryValues="@array/default_dnd">
     </ListPreference>
 
 </PreferenceScreen>
