@@ -1,19 +1,17 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- DND intervals -->
-    <com.example.chronos.themeprojectitsmap_201270746.Utilities.TimePreference
-        android:key="timePrefA_Key"
-        android:title="@string/pref_title_from"/>
-    <com.example.chronos.themeprojectitsmap_201270746.Utilities.TimePreference
-        android:key="timePrefB_Key"
-        android:title="@string/pref_title_to"/>
+    <!--&lt;!&ndash; DND intervals &ndash;&gt;-->
+    <!--<com.example.chronos.themeprojectitsmap_201270746.Utilities.TimePreference-->
+        <!--android:key="timePrefA_Key"-->
+        <!--android:title="@string/pref_title_from"/>-->
+    <!--<com.example.chronos.themeprojectitsmap_201270746.Utilities.TimePreference-->
+        <!--android:key="timePrefB_Key"-->
+        <!--android:title="@string/pref_title_to"/>-->
 
 
-    <ListPreference
+    <com.example.chronos.themeprojectitsmap_201270746.Utilities.IntervalListPreference
         android:title="@string/pref_title_dnd_list"
-        android:key="@string/pref_key_dnd_list"
-        android:entries="@array/default_dnd"
-        android:entryValues="@array/default_dnd">
-    </ListPreference>
+        android:key="@string/pref_key_dnd_list">
+    </com.example.chronos.themeprojectitsmap_201270746.Utilities.IntervalListPreference>
 
 </PreferenceScreen>

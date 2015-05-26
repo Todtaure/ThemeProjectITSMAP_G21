@@ -261,8 +261,8 @@ public class ActivityDataSource {
         };
 
         String sortOrder = ReminderContract.ActivityTable._ID + " DESC";
-        String  selection = ReminderContract.ActivityTable._ID + " = ?";
-        String[] selectionArgs = { String.valueOf(activityId) };
+        String  selection = ReminderContract.ActivityTable._ID + " LIKE ?";
+        String[] selectionArgs = {String.valueOf(activityId)};
 
         Cursor cursor = db.query(
                 ReminderContract.ActivityTable.TABLE_NAME,
@@ -283,9 +283,6 @@ public class ActivityDataSource {
 
         ActivityModel activity = activityList.get(0);
 
-        activity.addGpsData(getGpsDataByActivity(activityId));
-        activity.addOffInterval(getOffIntervalsByActivity(activityId));
-
         return activity;
     }
 
@@ -304,7 +301,7 @@ public class ActivityDataSource {
                 ReminderContract.GPSTable.COLUMN_NAME_ACTIVITY_FK
         };
         String sortOrder = ReminderContract.GPSTable.COLUMN_NAME_ACTIVITY_FK + " DESC";
-        String  selection = ReminderContract.GPSTable.COLUMN_NAME_ACTIVITY_FK + " = ?";
+        String  selection = ReminderContract.GPSTable.COLUMN_NAME_ACTIVITY_FK + " LIKE ?";
         String[] selectionArgs = { String.valueOf(activityId) };
 
         Cursor cursor = db.query(
@@ -337,7 +334,7 @@ public class ActivityDataSource {
                 ReminderContract.OffIntervalsTable.COLUMN_NAME_ACTIVITY_FK
         };
         String sortOrder = ReminderContract.OffIntervalsTable.COLUMN_NAME_ACTIVITY_FK + " DESC";
-        String  selection = ReminderContract.OffIntervalsTable.COLUMN_NAME_ACTIVITY_FK + " = ?";
+        String  selection = ReminderContract.OffIntervalsTable.COLUMN_NAME_ACTIVITY_FK + " LIKE ?";
         String[] selectionArgs = { String.valueOf(activityId) };
 
         Cursor cursor = db.query(

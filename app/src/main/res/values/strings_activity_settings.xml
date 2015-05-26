@@ -32,15 +32,24 @@
     <string name="pref_title_to">End</string>
 
     <string name="pref_title_dnd_list">Do Not Disturb</string>
-    <string name="pref_key_dnd_list">dnd_list_key</string>
-
-    <string-array name="default_dnd">
-        <item>All f***ing day!</item>
-    </string-array>
+    <string name="pref_key_dnd_list">dnd_list</string>
 
     <string name="pref_header_night_mode">Night Mode</string>
+    <string name="pref_key_night_from">nightPrefA_Key</string>
+    <string name="pref_key_night_to">nightPrefB_Key</string>
 
     <string name="pref_title_night_from">Start</string>
     <string name="pref_title_night_to">End</string>
+
+    <!-- Buttons -->
+    <string name="pref_header_buttons">Save or Delete</string>
+
+    <string name="pref_key_save">save_btn</string>
+    <string name="pref_title_save">Save</string>
+    <string name="pref_summary_save">Save settings</string>
+
+    <string name="pref_key_delete">delete_btn</string>
+    <string name="pref_title_delete">Delete</string>
+    <string name="pref_summary_delete">Delete settings</string>
 
 </resources>

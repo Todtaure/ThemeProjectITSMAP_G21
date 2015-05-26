@@ -57,7 +57,7 @@ public class MainMenuActivity extends Activity {
     private Integer snoozeHour;
     private Integer snoozeMinute;
     private ActivityDataSource dataSource;
-    private ArrayList activities;
+    private ArrayList<ActivityModel> activities;
     private ActivityListAdapter activityAdapter;
 
 
@@ -165,6 +165,7 @@ public class MainMenuActivity extends Activity {
     public void editBtn(View view)
     {
         Intent intent = new Intent(this, SettingsActivity.class);
+        intent.putExtra(Constants.ACTIVITY_ID, activities.get(0).getId());
         startActivity(intent);
     }
 
