@@ -67,12 +67,6 @@ public class MainMenuActivity extends Activity {
         setContentView(R.layout.activity_main_menu);
         Button btn_show = (Button) findViewById(R.id.snoozeButton);
 
-        try {
-            dataSource = new ActivityDataSource(getBaseContext());
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
         btn_show.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
@@ -100,7 +94,21 @@ public class MainMenuActivity extends Activity {
             }
         });
 
-       //ActivityModel mainActivityModel = new ActivityModel();
+        try {
+            dataSource = new ActivityDataSource(getBaseContext());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+
+
+        //ActivityModel mainActivityModel = new ActivityModel();
         dataSource.open();
 //        ActivityModel testActivity = new ActivityModel();
 //
@@ -224,7 +232,6 @@ public class MainMenuActivity extends Activity {
                 Intent snoozeIntent = new Intent(Constants.Service.SERVICE_BROADCAST);
                 snoozeIntent.putExtra(Constants.BroadcastParams.BROADCAST_METHOD,Constants.BroadcastMethods.SNOOZE.ordinal());
                 snoozeIntent.putExtra(Constants.BroadcastParams.SNOOZE_INTERVAL, snoozeInterval);
-
                 sendBroadcast(snoozeIntent);
 
                 TextView textViewMinute = (TextView)layout.findViewById(R.id.textViewMinute);
