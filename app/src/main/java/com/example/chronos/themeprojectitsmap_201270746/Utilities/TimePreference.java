@@ -38,7 +38,7 @@ public class TimePreference extends DialogPreference {
     @Override
     protected View onCreateDialogView() {
         picker=new TimePicker(getContext());
-
+        picker.setIs24HourView(true);
         return(picker);
     }
 
@@ -60,9 +60,8 @@ public class TimePreference extends DialogPreference {
 
             String time=String.valueOf(lastHour)+":"+String.valueOf(lastMinute);
 
-            if (callChangeListener(time)) {
-                persistString(time);
-            }
+            persistString(time);
+            callChangeListener(time);
         }
     }
 

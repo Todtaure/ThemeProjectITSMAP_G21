@@ -19,6 +19,7 @@ public final class ReminderContract {
         public static final String COLUMN_NAME_MAXREMINDERS = "maxReminders";
         public static final String COLUMN_NAME_REMINDERCOUNTER = "reminderCounter";
         public static final String COLUMN_NAME_DONE = "done";
+        public static final String COLUMN_NAME_NIGHTMODE = "nightMode";
     }
 
     public static abstract class GPSTable implements BaseColumns

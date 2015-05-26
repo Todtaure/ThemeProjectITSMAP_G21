@@ -21,6 +21,7 @@ public class ActivityModel
     private int maxReminders;
     private int reminderCounter;
     private Boolean done;
+    private String nightMode;
 
     private List<GPSModel> gpsData;
     private List<OffIntervalsModel> offIntervals;
@@ -96,6 +97,15 @@ public class ActivityModel
     public Boolean getDone()
     {
         return done;
+    }
+
+    public void setNightMode(String interval)
+    {
+        this.nightMode = interval;
+    }
+    public String getNightMode()
+    {
+        return nightMode;
     }
 
     public void setGpsData(List<GPSModel> gpsData)

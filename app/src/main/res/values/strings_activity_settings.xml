@@ -8,8 +8,11 @@
 
     <string name="pref_title_gps_status">Enable Geoloc</string>
     <string name="pref_key_gps_status">gps_active</string>
-    <string name="pref_description_gps_status">Turn on/off geolocations for your Activity
-    </string>
+    <string name="pref_description_gps_status">Turn on/off geolocations for your Activity</string>
+
+    <string-array name="geolocation_defaults">
+        <item>Home Default</item>
+    </string-array>
 
     <string name="pref_title_activity_name">Activity name</string>
     <string name="pref_key_activity_name">activity_name</string>
@@ -19,11 +22,25 @@
     <string name="pref_key_activity_duration">activity_duration</string>
     <string name="pref_default_activity_duration">eg. 60 (minutes)</string>
 
-    <!-- Example settings for Notifications -->
-    <string name="pref_header_notifications">Notifications</string>
+    <string name="pref_title_gps_list">Locations</string>
+    <string name="pref_key_gps_list">activity_locations</string>
 
-    <string name="pref_title_dnd_interval">Do Not Disturb</string>
-    <string name="pref_title_from">From</string>
-    <string name="pref_title_to">To</string>
+    <!-- Example settings for Notifications -->
+    <string name="pref_header_dnd">Do Not Disturb</string>
+
+    <string name="pref_title_from">Start</string>
+    <string name="pref_title_to">End</string>
+
+    <string name="pref_title_dnd_list">Do Not Disturb</string>
+    <string name="pref_key_dnd_list">dnd_list_key</string>
+
+    <string-array name="default_dnd">
+        <item>All f***ing day!</item>
+    </string-array>
+
+    <string name="pref_header_night_mode">Night Mode</string>
+
+    <string name="pref_title_night_from">Start</string>
+    <string name="pref_title_night_to">End</string>
 
 </resources>

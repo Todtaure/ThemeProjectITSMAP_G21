@@ -2,10 +2,12 @@
     <string name="app_name">ThemeProjectITSMAP_201270746</string>
     <string name="title_activity_main">MainActivity</string>
 
-    <string name="hello_world">Hello world!</string>
+    <!-- Titles -->
     <string name="action_settings">Settings</string>
     <string name="title_activity_main_menu">MainMenuActivity</string>
     <string name="title_activity_wizard">WizardActivity</string>
+
+    <!-- Wizard values -->
     <string name="wizard_prevButton">Previous</string>
     <string name="wizard_nextButton">Next</string>
     <string name="wizard_new_activity_text">This Wizard will guide you through the creation of a new activity. Through the following pages you will be able to specify several settings for your activity</string>

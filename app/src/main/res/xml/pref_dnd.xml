@@ -1,10 +1,6 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- DND intervals -->
-    <EditTextPreference
-        android:key="editTextPref_Key"
-        android:title="@string/pref_title_dnd_interval"
-        android:onClick="setDNDClick"/>
     <com.example.chronos.themeprojectitsmap_201270746.Utilities.TimePreference
         android:key="timePrefA_Key"
         android:title="@string/pref_title_from"/>
@@ -12,6 +8,11 @@
         android:key="timePrefB_Key"
         android:title="@string/pref_title_to"/>
 
-    <!-- Nightmode interval -->
+    <ListPreference
+        android:title="@string/pref_title_dnd_list"
+        android:key="@string/pref_key_dnd_list"
+        android:entries="@array/default_dnd"
+        android:entryValues="@array/default_dnd">
+    </ListPreference>
 
 </PreferenceScreen>

@@ -43,6 +43,7 @@ public class ActivityDataSource {
         }
         catch(android.database.SQLException ex) {
             Toast.makeText(currentContext, Constants.Messages.ERR_DB_CONNECTION, Toast.LENGTH_LONG).show();
+            throw ex;
         }
     }
 
@@ -78,6 +79,7 @@ public class ActivityDataSource {
         values.put(ReminderContract.ActivityTable.COLUMN_NAME_MAXREMINDERS, activity.getMaxReminders());
         values.put(ReminderContract.ActivityTable.COLUMN_NAME_REMINDERCOUNTER, activity.getReminderCounter());
         values.put(ReminderContract.ActivityTable.COLUMN_NAME_DONE, activity.getDone() ? 1 : 0);
+        values.put(ReminderContract.ActivityTable.COLUMN_NAME_NIGHTMODE, activity.getNightMode());
 
         long activityId;
 
@@ -209,7 +211,8 @@ public class ActivityDataSource {
             ReminderContract.ActivityTable.COLUMN_NAME_MINTIMEINTERVAL,
             ReminderContract.ActivityTable.COLUMN_NAME_MAXREMINDERS,
             ReminderContract.ActivityTable.COLUMN_NAME_REMINDERCOUNTER,
-            ReminderContract.ActivityTable.COLUMN_NAME_DONE
+            ReminderContract.ActivityTable.COLUMN_NAME_DONE,
+            ReminderContract.ActivityTable.COLUMN_NAME_NIGHTMODE
         };
 
         String sortOrder = ReminderContract.ActivityTable._ID + " DESC";
@@ -253,7 +256,8 @@ public class ActivityDataSource {
                 ReminderContract.ActivityTable.COLUMN_NAME_MINTIMEINTERVAL,
                 ReminderContract.ActivityTable.COLUMN_NAME_MAXREMINDERS,
                 ReminderContract.ActivityTable.COLUMN_NAME_REMINDERCOUNTER,
-                ReminderContract.ActivityTable.COLUMN_NAME_DONE
+                ReminderContract.ActivityTable.COLUMN_NAME_DONE,
+                ReminderContract.ActivityTable.COLUMN_NAME_NIGHTMODE
         };
 
         String sortOrder = ReminderContract.ActivityTable._ID + " DESC";
@@ -379,6 +383,8 @@ public class ActivityDataSource {
                     cursor.getColumnIndex(ReminderContract.ActivityTable.COLUMN_NAME_REMINDERCOUNTER)));
             activity.setDone(cursor.getInt(
                     cursor.getColumnIndex(ReminderContract.ActivityTable.COLUMN_NAME_DONE)) == 1);
+            activity.setNightMode(cursor.getString(
+                    cursor.getColumnIndex(ReminderContract.ActivityTable.COLUMN_NAME_NIGHTMODE)));
 
             activity.setGpsData(getGpsDataByActivity(activity.getId()));
             activity.setOffIntervals(getOffIntervalsByActivity(activity.getId()));
@@ -459,6 +465,7 @@ public class ActivityDataSource {
         values.put(ReminderContract.ActivityTable.COLUMN_NAME_MAXREMINDERS, activity.getMaxReminders());
         values.put(ReminderContract.ActivityTable.COLUMN_NAME_REMINDERCOUNTER, activity.getReminderCounter());
         values.put(ReminderContract.ActivityTable.COLUMN_NAME_DONE, activity.getDone() ? 1 : 0);
+        values.put(ReminderContract.ActivityTable.COLUMN_NAME_NIGHTMODE, activity.getNightMode());
 
         String  selection = ReminderContract.ActivityTable._ID + " = ?";
         String[] selectionArgs = { String.valueOf(activity.getId()) };
