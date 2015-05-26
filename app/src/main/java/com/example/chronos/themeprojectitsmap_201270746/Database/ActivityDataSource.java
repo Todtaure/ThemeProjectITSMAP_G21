@@ -34,6 +34,15 @@ public class ActivityDataSource {
     }
 
     /**
+     * USE WITH CARE!
+     * @param db
+     */
+    public void deleteDatabase(SQLiteDatabase db)
+    {
+        dbHelper.dropDatabase(db);
+    }
+
+    /**
      * Open DB connection
      */
     public void open()
