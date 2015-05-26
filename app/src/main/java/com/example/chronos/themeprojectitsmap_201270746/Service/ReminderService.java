@@ -35,6 +35,7 @@ import java.util.ArrayList;
 public class ReminderService extends Service {
     private Looper mServiceLooper;
     private ServiceHandler mServiceHandler;
+    private int snoozeInterval;
 
     @Override
     public IBinder onBind(Intent intent)
@@ -87,7 +88,6 @@ public class ReminderService extends Service {
     {
         @Override
         public void onReceive(Context context, Intent intent) {
-            //Intent receiveIntent = new Intent(context.getApplicationContext(), MainMenuActivity.class);
             int snoozeInterval = intent.getIntExtra(Constants.BroadcastParams.SNOOZE_INTERVAL, 0);
 
 
@@ -98,18 +98,16 @@ public class ReminderService extends Service {
             {
                 case SNOOZE :
                 {
-                    Toast.makeText(getBaseContext(), "OI STOP SNOOZING!", Toast.LENGTH_LONG).show();
-                    Toast.makeText(getBaseContext(), String.valueOf(snoozeInterval),Toast.LENGTH_LONG).show();
 
-                    PendingIntent pendingIntent = PendingIntent.getBroadcast(getBaseContext(),0, intent, 0);
+
+                    //Toast.makeText(getBaseContext(), "OI STOP SNOOZING!", Toast.LENGTH_LONG).show();
+
+                    PendingIntent pendingIntent = PendingIntent.getBroadcast(context,0, intent, 0);
 
                     AlarmManager alarmManager = (AlarmManager)getSystemService(Activity.ALARM_SERVICE);
 
-
-                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, snoozeInterval*1000*60,pendingIntent);
-                    //alarmManager.set(AlarmManager.RTC, snoozeInterval*60*1000, pendingIntent);
-
-                }
+                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, SystemClock.elapsedRealtime() + snoozeInterval * 1000 * 60, pendingIntent);
+                    Toast.makeText(getBaseContext(), String.valueOf(snoozeInterval),Toast.LENGTH_LONG).show();}
             }
         }
     };
