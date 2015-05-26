@@ -81,7 +81,7 @@ public class ReminderService extends Service {
         serviceId = startId;
 
         Bundle bundle = new Bundle();
-        bundle.putBoolean(Constants.Debug.IS_DEBUG, false);
+        bundle.putBoolean(Constants.Debug.IS_DEBUG, true);
 
         msg.arg1 = startId;
         msg.setData(bundle);
