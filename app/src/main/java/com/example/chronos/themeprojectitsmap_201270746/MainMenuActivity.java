@@ -91,9 +91,6 @@ public class MainMenuActivity extends Activity {
                 if(isOn && listItemId > 0) {
                     offSwitch.setText("On");
 
-                    Intent intent = new Intent(getApplicationContext(), ReminderService.class);
-                    intent.putExtra(Constants.ACTIVITY_ID,listItemId);
-                    startService(intent);
                 }
                 else {
                     offSwitch.setText("Off");
