@@ -54,7 +54,8 @@ public final class Constants {
         SNOOZE,
         ALARM_WAKEUP,
         ACTIVITY_UPDATED,
-        ACTIVITY_STATE_CHANGE
+        ACTIVITY_STATE_CHANGE,
+        SERVICE_STOP
     }
 
 
