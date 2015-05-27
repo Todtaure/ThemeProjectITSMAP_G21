@@ -72,6 +72,12 @@ public class MainMenuActivity extends Activity {
         Button btn_show = (Button) findViewById(R.id.snoozeButton);
         activityList = (ListView)findViewById(R.id.activityList);
 
+        try {
+            dataSource = new ActivityDataSource(getBaseContext());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
         btn_show.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
@@ -87,23 +93,23 @@ public class MainMenuActivity extends Activity {
         offSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isOn) {
-
-                if(isOn && listItemId > 0) {
+                dataSource.open();
+                ActivityModel setIsSnooze = new ActivityModel();
+                if (isOn && listItemId >= 0) {
                     offSwitch.setText("On");
+                    setIsSnooze.setIsSnooze(false);
 
-                }
-                else {
+                } else {
                     offSwitch.setText("Off");
+                    setIsSnooze.setIsSnooze(true);
                     onDestroy();
                 }
+
+                dataSource.close();
             }
         });
 
-        try {
-            dataSource = new ActivityDataSource(getBaseContext());
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+
 
         activityList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
