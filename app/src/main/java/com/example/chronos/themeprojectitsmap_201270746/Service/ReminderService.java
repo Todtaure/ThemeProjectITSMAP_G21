@@ -2,13 +2,15 @@ package com.example.chronos.themeprojectitsmap_201270746.Service;
 
 import android.app.Activity;
 import android.app.AlarmManager;
-import android.app.IntentService;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.drawable.Drawable;
 import android.os.*;
 import android.os.Process;
 import android.util.Log;
@@ -18,13 +20,17 @@ import com.example.chronos.themeprojectitsmap_201270746.Database.ActivityDataSou
 import com.example.chronos.themeprojectitsmap_201270746.Database.Models.ActivityModel;
 import com.example.chronos.themeprojectitsmap_201270746.Database.Models.GPSModel;
 import com.example.chronos.themeprojectitsmap_201270746.Database.Models.OffIntervalsModel;
-import com.example.chronos.themeprojectitsmap_201270746.Database.ReminderContract;
 import com.example.chronos.themeprojectitsmap_201270746.Database.ReminderDbHelper;
-import com.example.chronos.themeprojectitsmap_201270746.MainMenuActivity;
+import com.example.chronos.themeprojectitsmap_201270746.R;
 import com.example.chronos.themeprojectitsmap_201270746.Utilities.Constants;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.SimpleTimeZone;
+import java.util.TimeZone;
 
 /**
  * Created by Breuer on 19-05-2015.
@@ -35,10 +41,13 @@ import java.util.ArrayList;
 public class ReminderService extends Service {
     private Looper mServiceLooper;
     private ServiceHandler mServiceHandler;
-    private int snoozeInterval;
     private ActivityDataSource dataSource;
+    private ActivityModel currentActivity;
     private AlarmManager alarmManager;
     private int serviceId;
+    private int snoozeInterval;
+    private boolean isSnoozed = false;
+
 
     @Override
     public IBinder onBind(Intent intent)
@@ -77,11 +86,29 @@ public class ReminderService extends Service {
 
         registerReceiver(ServiceReceiver, new IntentFilter(Constants.Service.SERVICE_BROADCAST));
 
+        long activityId = intent.getLongExtra(Constants.ACTIVITY_ID, -1);
+
+        if(activityId == -1)
+        {
+            Toast.makeText(getBaseContext(), "No active Activity.", Toast.LENGTH_LONG).show();
+            stopSelf();
+        }
+
+        dataSource.open();
+        currentActivity = dataSource.getActivityById(activityId);
+        dataSource.close();
+
+        if(currentActivity == null)
+        {
+            Toast.makeText(getBaseContext(), "Activity could not be retrieved.", Toast.LENGTH_LONG).show();
+            stopSelf();
+        }
+
         Message msg = mServiceHandler.obtainMessage();
         serviceId = startId;
 
         Bundle bundle = new Bundle();
-        bundle.putBoolean(Constants.Debug.IS_DEBUG, true);
+        bundle.putBoolean(Constants.Debug.IS_DEBUG, false);
 
         msg.arg1 = startId;
         msg.setData(bundle);
@@ -95,6 +122,11 @@ public class ReminderService extends Service {
     {
         super.onDestroy();
         Log.d(Constants.Debug.LOG_TAG, "ReminderService.onDestroy");
+
+        Intent updateServiceIntent = new Intent(Constants.Service.SERVICE_BROADCAST);
+        PendingIntent pendingUpdateIntent = PendingIntent.getService(this, 0, updateServiceIntent, 0);
+        alarmManager.cancel(pendingUpdateIntent);
+
         unregisterReceiver(ServiceReceiver);
     }
 
@@ -121,17 +153,120 @@ public class ReminderService extends Service {
             {
                 case SNOOZE : {
                     setAlarm(snoozeInterval, Constants.BroadcastMethods.ALARM_WAKEUP);
-                    //Toast.makeText(getBaseContext(), String.valueOf(snoozeInterval), Toast.LENGTH_LONG).show();
+                    isSnoozed = true;
                     break;
                 }
-
                 case ALARM_WAKEUP: {
-                    Toast.makeText(getBaseContext(), String.valueOf(snoozeInterval), Toast.LENGTH_LONG).show();
+                    isSnoozed = false;
+                    break;
+                }
+                case ALARM_SERVICE_CHECK:
+                {
+                    if(!isDNDOrNightMode()) {
+                        checkCalendar();
+                    }
+                        setAlarm(60, Constants.BroadcastMethods.ALARM_SERVICE_CHECK);
+
+                    break;
+                }
+                case ALARM_NOTIFICATION:
+                {
+                    notifyUser();
                     break;
                 }
             }
         }
     };
+
+    private void notifyUser()
+    {
+        Intent snoozeIntent = new Intent(Constants.Service.SERVICE_BROADCAST);
+        snoozeIntent.putExtra(Constants.BroadcastParams.BROADCAST_METHOD, Constants.BroadcastMethods.SNOOZE.ordinal());
+
+        PendingIntent snoozePending = PendingIntent.getService(this, 0, snoozeIntent, 0);
+
+        Notification n  = new Notification.Builder(this)
+                .setContentTitle("Activity Reminder")
+                .setContentText("You now have at least " + currentActivity.getMinTimeInterval() + " minutes all for yourself.")
+                .setSmallIcon(R.drawable.ic_stat_clipboard)
+                .setAutoCancel(true)
+                .addAction(R.drawable.ic_stat_bell, "Snooze", snoozePending).build();
+
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+        notificationManager.notify(0, n);
+    }
+
+    private boolean isDNDOrNightMode()
+    {
+        String[] ids = TimeZone.getAvailableIDs(1 * 60 * 60 * 1000);
+        // create a Pacific Standard Time time zone
+        SimpleTimeZone pdt = new SimpleTimeZone(1 * 60 * 60 * 1000, ids[0]);
+
+        // set up rules for daylight savings time
+        pdt.setStartRule(Calendar.APRIL, 1, Calendar.SUNDAY, 2 * 60 * 60 * 1000);
+        pdt.setEndRule(Calendar.OCTOBER, -1, Calendar.SUNDAY, 2 * 60 * 60 * 1000);
+
+        Calendar calendar = new GregorianCalendar(pdt);
+        int currentHour = calendar.get(Calendar.HOUR);
+        int currentMinute = calendar.get(Calendar.MINUTE);
+
+        String nightMode = currentActivity.getNightMode();
+        String startTime, endTime;
+        int startHour, startMinute, endHour, endMinute;
+
+        if(nightMode != null || nightMode.equals(""))
+        {
+            startTime = nightMode.split(",")[0];
+            endTime  = nightMode.split(",")[1];
+
+            startHour = Integer.parseInt(startTime.split(":")[0]);
+            startMinute = Integer.parseInt(startTime.split(":")[1]);
+
+            endHour = Integer.parseInt(endTime.split(":")[0]);
+            endMinute = Integer.parseInt(endTime.split(":")[0]);
+
+            if( (currentHour > startHour && currentMinute > startMinute) || (currentHour < endHour && currentMinute < endMinute) )
+            {
+                return true;
+            }
+        }
+
+        List<OffIntervalsModel> items = currentActivity.getOffIntervals();
+        for(OffIntervalsModel item : items)
+        {
+            startTime = item.getOffInterval().split(",")[0];
+            endTime = item.getOffInterval().split(",")[1];
+
+            startHour = Integer.parseInt(startTime.split(":")[0]);
+            startMinute = Integer.parseInt(startTime.split(":")[1]);
+
+            endHour = Integer.parseInt(endTime.split(":")[0]);
+            endMinute = Integer.parseInt(endTime.split(":")[0]);
+
+            if( (currentHour > startHour && currentMinute > startMinute) || (currentHour < endHour && currentMinute < endMinute) )
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void checkCalendar()
+    {
+        int timeTillNextInterval = -1;
+        //get calender time
+
+        if(timeTillNextInterval > 60)
+        {
+            return;
+        }
+
+        setAlarm(timeTillNextInterval, Constants.BroadcastMethods.ALARM_NOTIFICATION);
+
+    }
 
     private final class ServiceHandler extends Handler
     {

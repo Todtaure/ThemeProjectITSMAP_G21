@@ -96,26 +96,28 @@ public class SettingsActivity extends PreferenceActivity {
         getPreferenceScreen().addPreference(fakeHeader);
         addPreferencesFromResource(R.xml.pref_buttons);
 
-        // Bind the summaries of EditText/List/Dialog/Ringtone preferences to
-        // their values. When their values change, their summaries are updated
-        // to reflect the new value, per the Android Design guidelines.
-        bindPreferenceSummaryToValue(findPreference("activity_name"));
-        bindPreferenceSummaryToValue(findPreference("activity_duration"));
-        bindPreferenceSummaryToValue(findPreference("activity_locations"));
-        bindPreferenceSummaryToValue(findPreference("nightPrefA_Key"));
-        bindPreferenceSummaryToValue(findPreference("nightPrefB_Key"));
-
         Intent intent = getIntent();
         activityId = intent.getLongExtra(Constants.ACTIVITY_ID, -1);
 
         if (activityId == -1) {
             Toast.makeText(getBaseContext(), "No Activity attached.", Toast.LENGTH_LONG).show();
+
+            // Bind the summaries of EditText/List/Dialog/Ringtone preferences to
+            // their values. When their values change, their summaries are updated
+            // to reflect the new value, per the Android Design guidelines.
+            bindPreferenceSummaryToValue(findPreference("activity_name"));
+            bindPreferenceSummaryToValue(findPreference("activity_duration"));
+            bindPreferenceSummaryToValue(findPreference("activity_locations"));
+            bindPreferenceSummaryToValue(findPreference("nightPrefA_Key"));
+            bindPreferenceSummaryToValue(findPreference("nightPrefB_Key"));
+
             return;
         }
 
         dataSource.open();
         final ActivityModel activity = dataSource.getActivityById(activityId);
         dataSource.close();
+
         if (activity == null) {
             Toast.makeText(getBaseContext(), Constants.Messages.ERR_DB_READ, Toast.LENGTH_LONG).show();
             return;
@@ -332,12 +334,6 @@ public class SettingsActivity extends PreferenceActivity {
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_dnd);
-
-            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
-            // to their values. When their values change, their summaries are
-            // updated to reflect the new value, per the Android Design
-            // guidelines.
-            bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
         }
     }
 }

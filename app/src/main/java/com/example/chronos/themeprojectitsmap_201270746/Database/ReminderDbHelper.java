@@ -50,7 +50,7 @@ public class ReminderDbHelper extends SQLiteOpenHelper {
 
 
     // If you change the database schema, you must increment the database version.
-    public static final int DATABASE_VERSION = 15;
+    public static final int DATABASE_VERSION = 3;
     public static final String DATABASE_NAME = "ReminderApp.db";
 
     public ReminderDbHelper(Context context) {
