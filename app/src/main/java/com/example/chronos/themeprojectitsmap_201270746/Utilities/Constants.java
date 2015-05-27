@@ -13,7 +13,7 @@ public final class Constants {
     public static abstract class Service
     {
         public static final String UPDATE_INTERVAL_KEY = "UPDATE_INTERVAL";
-        public static final int UPDATE_INTERVAL_VAL = 3600;
+        public static final int UPDATE_INTERVAL_VAL = 60;
 
         public static final String SERVICE_HANDLER = "ReminderServiceHandler";
 
@@ -41,20 +41,19 @@ public final class Constants {
 
         // Manuel snooze interval from mainMenuActivity
         public static final String SNOOZE_INTERVAL = "snooze_interval";
-
-        //Alarm types
-        public static final String ALARM_KEY = "ALARM_TYPE";
-
-        public static final String ALARM_TYPE_SNOOZE = "ALARM_SNOOZE";
-        public static final String ALARM_TYPE_NORMAL = "ALARM_NORMAL";
     }
 
     public static enum BroadcastMethods
     {
         SNOOZE,
         ALARM_WAKEUP,
+        ALARM_SERVICE_CHECK,
+        ALARM_NOTIFICATION,
         ACTIVITY_UPDATED,
-        ACTIVITY_STATE_CHANGE
+        ACTIVITY_STATE_CHANGE,
+        ACTIVITY_SNOOZED,
+        ACTIVITY_DONE,
+        SERVICE_STOP
     }
 
 

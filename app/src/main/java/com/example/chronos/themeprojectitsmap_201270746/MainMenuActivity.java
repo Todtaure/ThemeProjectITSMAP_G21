@@ -13,6 +13,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.internal.widget.AdapterViewCompat;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -20,8 +21,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -57,15 +60,23 @@ public class MainMenuActivity extends Activity {
     private Integer snoozeHour;
     private Integer snoozeMinute;
     private ActivityDataSource dataSource;
-    private ArrayList activities;
+    private ArrayList<ActivityModel> activities;
     private ActivityListAdapter activityAdapter;
-
+    private ListView activityList;
+    private long listItemId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
         Button btn_show = (Button) findViewById(R.id.snoozeButton);
+        activityList = (ListView)findViewById(R.id.activityList);
+
+        try {
+            dataSource = new ActivityDataSource(getBaseContext());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
         btn_show.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,24 +93,31 @@ public class MainMenuActivity extends Activity {
         offSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isOn) {
-
-                if(isOn) {
+                dataSource.open();
+                ActivityModel setIsSnooze = new ActivityModel();
+                if (isOn && listItemId >= 0) {
                     offSwitch.setText("On");
-                    startService(new Intent(getApplicationContext(), ReminderService.class));
-                }
-                else {
+                    setIsSnooze.setIsSnooze(false);
+
+                } else {
                     offSwitch.setText("Off");
+                    setIsSnooze.setIsSnooze(true);
                     onDestroy();
                 }
+
+                dataSource.close();
             }
         });
 
-        try {
-            dataSource = new ActivityDataSource(getBaseContext());
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
 
+
+        activityList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                listItemId = id;
+            }
+        });
     }
 
     @Override
@@ -135,12 +153,13 @@ public class MainMenuActivity extends Activity {
 
     public void setActivityList()
     {
-        ListView activityList = (ListView)findViewById(R.id.activityList);
         activityAdapter = new ActivityListAdapter(getApplicationContext(), R.layout.activity_list, activities);
 
         // Here, you set the data in your ListView
         activityList.setAdapter(activityAdapter);
+
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -173,6 +192,7 @@ public class MainMenuActivity extends Activity {
     public void editBtn(View view)
     {
         Intent intent = new Intent(this, SettingsActivity.class);
+        intent.putExtra(Constants.ACTIVITY_ID, activities.get(0).getId());
         startActivity(intent);
     }
 
