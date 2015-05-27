@@ -18,6 +18,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.chronos.themeprojectitsmap_201270746.Database.ActivityDataSource;
 import com.example.chronos.themeprojectitsmap_201270746.Database.Models.ActivityModel;
 import com.example.chronos.themeprojectitsmap_201270746.Service.ReminderService;
 import com.example.chronos.themeprojectitsmap_201270746.Utilities.Constants;
@@ -29,6 +30,7 @@ public class ActivityListAdapter extends ArrayAdapter
     private Context mContext;
     private int id;
     private List<ActivityModel> items;
+    private int selected_position = -1;
 
     public ActivityListAdapter(Context context, int textViewResourceId , List<ActivityModel> list )
     {
@@ -42,14 +44,25 @@ public class ActivityListAdapter extends ArrayAdapter
     @Override
     public View getView(final int position, View v, ViewGroup parent)
     {
-        View mView = v ;
+        View mView = v;
+
         if(mView == null){
             LayoutInflater vi = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             mView = vi.inflate(id, null);
         }
 
-        TextView text = (TextView) mView.findViewById(R.id.textView);
         CheckBox listItemCheckbox = (CheckBox)mView.findViewById(R.id.listItemCheckbox);
+
+        if(selected_position == position)
+        {
+            listItemCheckbox.setChecked(true);
+        }
+        else
+        {
+            listItemCheckbox.setChecked(false);
+        }
+
+        TextView text = (TextView) mView.findViewById(R.id.textView);
 
         if(items.get(position) != null )
         {
@@ -59,15 +72,15 @@ public class ActivityListAdapter extends ArrayAdapter
 
             int id = Resources.getSystem().getIdentifier("btn_check_holo_light", "drawable", "android");
             listItemCheckbox.setButtonDrawable(id);
-
         }
 
         listItemCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
+                ActivityModel checked = new ActivityModel();
 
-                    Toast.makeText(getContext(), String.valueOf(position), Toast.LENGTH_LONG).show();
+                if (isChecked) {
+                    selected_position = position;
                     Intent intent = new Intent(getContext(), ReminderService.class);
                     intent.putExtra(Constants.ACTIVITY_ID, items.get(position).getId());
                     getContext().startService(intent);
@@ -75,7 +88,9 @@ public class ActivityListAdapter extends ArrayAdapter
                 } else {
                     Intent intent = new Intent(getContext(),ReminderService.class);
                     getContext().stopService(intent);
+                    selected_position = -1;
                 }
+                notifyDataSetChanged();
             }
         });
 
