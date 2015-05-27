@@ -24,6 +24,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -62,12 +63,14 @@ public class MainMenuActivity extends Activity {
     private ArrayList<ActivityModel> activities;
     private ActivityListAdapter activityAdapter;
     private ListView activityList;
+    private long listItemId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
         Button btn_show = (Button) findViewById(R.id.snoozeButton);
+        activityList = (ListView)findViewById(R.id.activityList);
 
         btn_show.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -85,9 +88,9 @@ public class MainMenuActivity extends Activity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isOn) {
 
-                if(isOn) {
+                if(isOn && listItemId > 0) {
                     offSwitch.setText("On");
-                    startService(new Intent(getApplicationContext(), ReminderService.class));
+
                 }
                 else {
                     offSwitch.setText("Off");
@@ -102,29 +105,13 @@ public class MainMenuActivity extends Activity {
             e.printStackTrace();
         }
 
-//        activityList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//
-//
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//
-//            }
-//
-//            @Override
-//            public void onItemClick(AdapterView<?> adapter, View v, int position) {
-//
-//                ItemClicked item = adapter.getItem(position);
-//
-//                Intent intent = new Intent(Activity.this, destinationActivity.class);
-////based on item add info to intent
-//                startActivity(intent);
-//
-//            }
-//
-//
-//        });
+        activityList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
-
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                listItemId = id;
+            }
+        });
     }
 
     @Override
@@ -160,7 +147,6 @@ public class MainMenuActivity extends Activity {
 
     public void setActivityList()
     {
-        activityList = (ListView)findViewById(R.id.activityList);
         activityAdapter = new ActivityListAdapter(getApplicationContext(), R.layout.activity_list, activities);
 
         // Here, you set the data in your ListView

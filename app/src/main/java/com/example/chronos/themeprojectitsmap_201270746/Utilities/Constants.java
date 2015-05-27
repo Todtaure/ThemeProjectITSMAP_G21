@@ -50,7 +50,8 @@ public final class Constants {
         ALARM_SERVICE_CHECK,
         ALARM_NOTIFICATION,
         ACTIVITY_UPDATED,
-        ACTIVITY_STATE_CHANGE
+        ACTIVITY_STATE_CHANGE,
+        SERVICE_STOP
     }
 
 

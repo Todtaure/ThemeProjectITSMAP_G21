@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:descendantFocusability="blocksDescendants" >
+    >
 
     <TextView
         android:layout_width="0dp"
@@ -12,15 +12,14 @@
         android:textSize="20px" android:paddingTop="25dip" android:paddingBottom="25dip"
         android:gravity="center_horizontal"
         android:layout_weight="4"
-        android:focusable="false"
-        android:focusableInTouchMode="false"
+
         />
 
     <CheckBox
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="test"
+        android:text=""
         android:id="@+id/listItemCheckbox"
         android:layout_alignParentLeft="true"
         android:focusable="false"

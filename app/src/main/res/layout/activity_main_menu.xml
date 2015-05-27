@@ -67,6 +67,8 @@
         android:background="@drawable/activity_list_border"
         android:padding="1dp"
         android:clickable="true"
-    />
+        android:listSelector="@color/accent_material_light"
+        android:choiceMode="singleChoice"
+        />
 
 </RelativeLayout>
