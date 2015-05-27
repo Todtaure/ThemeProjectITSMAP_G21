@@ -62,9 +62,9 @@ public class ActivityListAdapter extends ArrayAdapter
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     if (isChecked) {
-
+                        Toast.makeText(getContext(), "checked", Toast.LENGTH_LONG).show();
                     } else {
-
+                        Toast.makeText(getContext(), "not checked", Toast.LENGTH_LONG).show();
                     }
                 }
             });
@@ -72,6 +72,7 @@ public class ActivityListAdapter extends ArrayAdapter
 
             mView.setOnClickListener(new View.OnClickListener() {
                 public void onClick(final View v) {
+                    Toast.makeText(getContext(), "test", Toast.LENGTH_LONG).show();
                 }
             });
 
