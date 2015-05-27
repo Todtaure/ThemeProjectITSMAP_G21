@@ -20,6 +20,7 @@ import com.example.chronos.themeprojectitsmap_201270746.Database.Models.Activity
 import com.example.chronos.themeprojectitsmap_201270746.Database.Models.OffIntervalsModel;
 import com.example.chronos.themeprojectitsmap_201270746.MainMenuActivity;
 import com.example.chronos.themeprojectitsmap_201270746.R;
+import com.example.chronos.themeprojectitsmap_201270746.Service.CalendarInfo;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -66,7 +67,6 @@ public class WizardActivity extends ActionBarActivity {
             Toast.makeText(getBaseContext(), "Failed to create sql instance",
                     Toast.LENGTH_SHORT).show();
         }
-
 
 
 
