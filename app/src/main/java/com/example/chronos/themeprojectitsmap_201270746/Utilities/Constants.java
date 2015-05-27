@@ -13,7 +13,7 @@ public final class Constants {
     public static abstract class Service
     {
         public static final String UPDATE_INTERVAL_KEY = "UPDATE_INTERVAL";
-        public static final int UPDATE_INTERVAL_VAL = 3600;
+        public static final int UPDATE_INTERVAL_VAL = 60;
 
         public static final String SERVICE_HANDLER = "ReminderServiceHandler";
 
@@ -51,6 +51,8 @@ public final class Constants {
         ALARM_NOTIFICATION,
         ACTIVITY_UPDATED,
         ACTIVITY_STATE_CHANGE,
+        ACTIVITY_SNOOZED,
+        ACTIVITY_DONE,
         SERVICE_STOP
     }
 

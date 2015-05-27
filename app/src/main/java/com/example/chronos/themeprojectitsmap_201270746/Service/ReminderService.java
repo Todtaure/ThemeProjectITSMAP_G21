@@ -96,13 +96,20 @@ public class ReminderService extends Service {
 
         dataSource.open();
         currentActivity = dataSource.getActivityById(activityId);
-        dataSource.close();
 
         if(currentActivity == null)
         {
             Toast.makeText(getBaseContext(), "Activity could not be retrieved.", Toast.LENGTH_LONG).show();
+            dataSource.close();
             stopSelf();
         }
+
+        currentActivity.setIsOff(false);
+
+        dataSource.updateActivity(currentActivity);
+        dataSource.close();
+
+        notifyUser();
 
         Message msg = mServiceHandler.obtainMessage();
         serviceId = startId;
@@ -163,25 +170,66 @@ public class ReminderService extends Service {
                 case ALARM_SERVICE_CHECK:
                 {
                     if(!isDNDOrNightMode()) {
-                        checkCalendar();
+                        if(checkCalendar())
+                        {
+                            break;
+                        }
                     }
-                        setAlarm(60, Constants.BroadcastMethods.ALARM_SERVICE_CHECK);
+                    setAlarm(Constants.Service.UPDATE_INTERVAL_VAL, Constants.BroadcastMethods.ALARM_SERVICE_CHECK);
 
                     break;
                 }
                 case ALARM_NOTIFICATION:
                 {
                     notifyUser();
+                    setAlarm(Constants.Service.UPDATE_INTERVAL_VAL, Constants.BroadcastMethods.ALARM_SERVICE_CHECK);
+                    break;
+                }
+                case ACTIVITY_SNOOZED:
+                {
+                    incrementActivityReminder();
+                    break;
+                }
+                case ACTIVITY_DONE:
+                {
+                    checkActivityDone();
                     break;
                 }
             }
         }
     };
 
+    private void checkActivityDone() {
+        dataSource.open();
+        currentActivity.setDone(true);
+        dataSource.updateActivity(currentActivity);
+        dataSource.close();
+    }
+
+    private void incrementActivityReminder() {
+        dataSource.open();
+        currentActivity.incrementReminderCounter();
+        if(currentActivity.getMaxReminders() <= currentActivity.getReminderCounter())
+        {
+            currentActivity.setIsSnooze(true);
+        }
+
+        dataSource.updateActivity(currentActivity);
+
+        dataSource.close();
+    }
+
     private void notifyUser()
     {
+        if(currentActivity.getIsSnooze() || currentActivity.getIsOff())
+        {
+            return;
+        }
+
+        Log.d(Constants.Debug.LOG_TAG, "ReminderService.notifyUser");
+
         Intent snoozeIntent = new Intent(Constants.Service.SERVICE_BROADCAST);
-        snoozeIntent.putExtra(Constants.BroadcastParams.BROADCAST_METHOD, Constants.BroadcastMethods.SNOOZE.ordinal());
+        snoozeIntent.putExtra(Constants.BroadcastParams.BROADCAST_METHOD, Constants.BroadcastMethods.ACTIVITY_SNOOZED.ordinal());
 
         PendingIntent snoozePending = PendingIntent.getService(this, 0, snoozeIntent, 0);
 
@@ -192,14 +240,16 @@ public class ReminderService extends Service {
                 .setAutoCancel(true)
                 .addAction(R.drawable.ic_stat_bell, "Snooze", snoozePending).build();
 
+        n.defaults |= Notification.DEFAULT_SOUND;
+        n.defaults |= Notification.DEFAULT_VIBRATE;
+
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         notificationManager.notify(0, n);
     }
 
-    private boolean isDNDOrNightMode()
-    {
+    private boolean isDNDOrNightMode() {
         String[] ids = TimeZone.getAvailableIDs(1 * 60 * 60 * 1000);
         // create a Pacific Standard Time time zone
         SimpleTimeZone pdt = new SimpleTimeZone(1 * 60 * 60 * 1000, ids[0]);
@@ -254,22 +304,20 @@ public class ReminderService extends Service {
         return false;
     }
 
-    private void checkCalendar()
-    {
+    private boolean checkCalendar() {
         int timeTillNextInterval = -1;
         //get calender time
 
-        if(timeTillNextInterval > 60)
+        if(timeTillNextInterval > Constants.Service.UPDATE_INTERVAL_VAL)
         {
-            return;
+            return false;
         }
 
         setAlarm(timeTillNextInterval, Constants.BroadcastMethods.ALARM_NOTIFICATION);
-
+        return true;
     }
 
-    private final class ServiceHandler extends Handler
-    {
+    private final class ServiceHandler extends Handler {
         private ActivityDataSource dataSource;
         private int serviceId;
         private AlarmManager alarmManager;
