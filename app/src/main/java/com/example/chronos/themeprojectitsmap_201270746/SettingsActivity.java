@@ -2,6 +2,8 @@ package com.example.chronos.themeprojectitsmap_201270746;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
@@ -11,9 +13,16 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 
+import com.example.chronos.themeprojectitsmap_201270746.Database.ActivityDataSource;
+import com.example.chronos.themeprojectitsmap_201270746.Database.Models.ActivityModel;
+import com.example.chronos.themeprojectitsmap_201270746.Utilities.Constants;
+
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -35,8 +44,8 @@ public class SettingsActivity extends PreferenceActivity {
      * shown on tablets.
      */
     private static final boolean ALWAYS_SIMPLE_PREFS = false;
-
-
+    private ActivityDataSource dataSource = null;
+    long activityId;
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
@@ -54,6 +63,12 @@ public class SettingsActivity extends PreferenceActivity {
             return;
         }
 
+        try {
+            dataSource = new ActivityDataSource(getBaseContext());
+        } catch (SQLException ex) {
+            Toast.makeText(getBaseContext(), Constants.Messages.ERR_DB_CONNECTION, Toast.LENGTH_LONG).show();
+            return;
+        }
         // In the simplified UI, fragments are not used at all and we instead
 
         addPreferencesFromResource(R.xml.pref_name);
@@ -76,49 +91,105 @@ public class SettingsActivity extends PreferenceActivity {
         getPreferenceScreen().addPreference(fakeHeader);
         addPreferencesFromResource(R.xml.pref_nightmode);
 
+        fakeHeader = new PreferenceCategory(this);
+        fakeHeader.setTitle(R.string.pref_header_buttons);
+        getPreferenceScreen().addPreference(fakeHeader);
+        addPreferencesFromResource(R.xml.pref_buttons);
+
         // Bind the summaries of EditText/List/Dialog/Ringtone preferences to
         // their values. When their values change, their summaries are updated
         // to reflect the new value, per the Android Design guidelines.
         bindPreferenceSummaryToValue(findPreference("activity_name"));
         bindPreferenceSummaryToValue(findPreference("activity_duration"));
         bindPreferenceSummaryToValue(findPreference("activity_locations"));
-        bindPreferenceSummaryToValue(findPreference("timePrefA_Key"));
-        bindPreferenceSummaryToValue(findPreference("timePrefB_Key"));
         bindPreferenceSummaryToValue(findPreference("nightPrefA_Key"));
         bindPreferenceSummaryToValue(findPreference("nightPrefB_Key"));
-//        Intent intent = getIntent();
-//        int activityId = intent.getIntExtra(Constants.ACTIVITY_ID, -1);
-//
-//        if(activityId == -1)
-//        {
-//            Toast.makeText(getBaseContext(), "No Activity attached.", Toast.LENGTH_LONG).show();
-//            return;
-//        }
-//        ActivityDataSource dbHelper;
-//        try {
-//            dbHelper = new ActivityDataSource(getBaseContext());
-//        }
-//        catch (SQLException ex)
-//        {
-//            Toast.makeText(getBaseContext(), Constants.Messages.ERR_DB_CONNECTION, Toast.LENGTH_LONG).show();
-//            return;
-//        }
-//
-//        dbHelper.open();
-//        ActivityModel activity = dbHelper.getActivityById(activityId);
-//
-//        if(activity == null)
-//        {
-//            Toast.makeText(getBaseContext(), Constants.Messages.ERR_DB_READ, Toast.LENGTH_LONG).show();
-//            return;
-//        }
-//        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-//        SharedPreferences.Editor editor = settings.edit();
-//
-//        editor.putString("activity_name", activity.getName());
-//        editor.putInt("pref_key_activity_duration", activity.getMinTimeInterval());
-//        editor.putBoolean("pref_key_gps_status", !activity.getGpsData().isEmpty());
-//        editor.commit();
+
+        Intent intent = getIntent();
+        activityId = intent.getLongExtra(Constants.ACTIVITY_ID, -1);
+
+        if (activityId == -1) {
+            Toast.makeText(getBaseContext(), "No Activity attached.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        dataSource.open();
+        final ActivityModel activity = dataSource.getActivityById(activityId);
+        dataSource.close();
+        if (activity == null) {
+            Toast.makeText(getBaseContext(), Constants.Messages.ERR_DB_READ, Toast.LENGTH_LONG).show();
+            return;
+        }
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        SharedPreferences.Editor editor = settings.edit();
+
+        editor.putString("activity_name", activity.getName());
+        editor.putInt("pref_key_activity_duration", activity.getMinTimeInterval());
+        editor.putBoolean("pref_key_gps_status", !activity.getGpsData().isEmpty());
+
+        String nightMode = activity.getNightMode();
+
+        if (nightMode != null) {
+            editor.putString("nightPrefA_Key", nightMode.split(",")[0]);
+            editor.putString("nightPrefB_Key", nightMode.split(",")[1]);
+        }
+        editor.commit();
+
+        Preference buttonSave = (Preference)findPreference(getString(R.string.pref_key_delete));
+        buttonSave.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+
+                if(preference instanceof Preference)
+                {
+                    ActivityDataSource dataSource;
+                    try {
+                        dataSource = new ActivityDataSource(preference.getContext());
+                    } catch (SQLException ex) {
+                        Toast.makeText(preference.getContext(), Constants.Messages.ERR_DB_CONNECTION, Toast.LENGTH_LONG).show();
+                        return false;
+                    }
+                    if(preference.getKey() == getString(R.string.pref_key_delete))
+                    {
+                        dataSource.open();
+                        dataSource.deleteActivityById(activityId);
+                        dataSource.close();
+                        activityId = -1;
+                    }
+                }
+                return false;
+            };
+        });
+    }
+
+    @Override
+    protected void onStop()
+    {
+        super.onStop();
+        Log.d(Constants.Debug.LOG_TAG, "SettingsActivity.onStop");
+
+        if(activityId == -1)
+        {
+            return;
+        }
+
+        dataSource.open();
+        ActivityModel activity = dataSource.getActivityById(activityId);
+
+        Preference preference = (Preference)findPreference(getString(R.string.pref_key_activity_name));
+        activity.setName(preference.getSummary().toString());
+
+        preference = (Preference)findPreference(getString(R.string.pref_key_activity_duration));
+        activity.setMinTimeInterval(Integer.parseInt(preference.getSummary().toString()));
+
+        preference = (Preference)findPreference(getString(R.string.pref_key_night_from));
+        String nightMode = preference.getSummary().toString();
+        preference = (Preference)findPreference(getString(R.string.pref_key_night_to));
+        nightMode += "," + preference.getSummary().toString();
+        activity.setNightMode(nightMode);
+
+        dataSource.updateActivity(activity);
+        dataSource.close();
     }
 
     /**
@@ -162,7 +233,7 @@ public class SettingsActivity extends PreferenceActivity {
         }
     }
 
-    /**
+     /**
      * A preference value change listener that updates the preference's summary
      * to reflect its new value.
      */
@@ -187,16 +258,6 @@ public class SettingsActivity extends PreferenceActivity {
             else if(preference instanceof com.example.chronos.themeprojectitsmap_201270746.Utilities.TimePreference)
             {
                 switch(preference.getKey()) {
-                    case "timePrefA_Key": {
-                        String timeA = PreferenceManager.getDefaultSharedPreferences(preference.getContext()).getString("timePrefA_Key", "-");
-                        preference.setSummary(timeA);
-                        break;
-                    }
-                    case "timePrefB_Key": {
-                        String timeB = PreferenceManager.getDefaultSharedPreferences(preference.getContext()).getString("timePrefB_Key", "-");
-                        preference.setSummary(timeB);
-                        break;
-                    }
                     case "nightPrefA_Key":
                     {
                         String nightA = PreferenceManager.getDefaultSharedPreferences(preference.getContext()).getString("nightPrefA_Key", "-");
@@ -278,9 +339,5 @@ public class SettingsActivity extends PreferenceActivity {
             // guidelines.
             bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
         }
-    }
-
-    public void setDNDClick(View view)
-    {
     }
 }

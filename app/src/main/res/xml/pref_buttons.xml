@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <Preference
+        android:key="@string/pref_key_delete"
+        android:title="@string/pref_title_delete"
+        android:summary="@string/pref_summary_delete"
+        android:icon="@mipmap/ic_action_cross"/>
+
+</PreferenceScreen>

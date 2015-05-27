@@ -2,9 +2,9 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Nightmode interval -->
     <com.example.chronos.themeprojectitsmap_201270746.Utilities.TimePreference
-        android:key="nightPrefA_Key"
+        android:key="@string/pref_key_night_from"
         android:title="@string/pref_title_night_from"/>
     <com.example.chronos.themeprojectitsmap_201270746.Utilities.TimePreference
-        android:key="nightPrefB_Key"
+        android:key="@string/pref_key_night_to"
         android:title="@string/pref_title_night_to"/>
 </PreferenceScreen>

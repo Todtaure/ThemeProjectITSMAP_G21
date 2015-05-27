@@ -164,7 +164,6 @@ public class ReminderService extends Service {
             if(bundle.getBoolean(Constants.Debug.IS_DEBUG, false))
             {
                 runTestDatabase();
-                stopSelf(serviceId);
             }
         }
 
@@ -239,7 +238,5 @@ public class ReminderService extends Service {
             dataSource.close();
             getBaseContext().deleteDatabase(ReminderDbHelper.DATABASE_NAME);
         }
-
-
     }
 }
