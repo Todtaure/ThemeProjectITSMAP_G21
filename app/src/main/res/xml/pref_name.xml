@@ -5,7 +5,6 @@
     <EditTextPreference
         android:key="@string/pref_key_activity_name"
         android:title="@string/pref_title_activity_name"
-        android:defaultValue="@string/pref_default_activity_name"
         android:selectAllOnFocus="true"
         android:inputType="textCapWords"
         android:capitalize="words"
