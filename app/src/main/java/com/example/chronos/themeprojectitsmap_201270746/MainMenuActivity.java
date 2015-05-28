@@ -214,11 +214,9 @@ public class MainMenuActivity extends Activity {
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
-
-        int[] location = new int[2];
         p = new Point();
-        p.x = location[0];
-        p.y = location[1];
+        p.x = 0;
+        p.y = 0;
     }
 
     // The method that displays the popup.
