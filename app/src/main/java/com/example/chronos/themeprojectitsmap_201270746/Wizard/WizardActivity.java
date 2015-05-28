@@ -1,5 +1,5 @@
 package com.example.chronos.themeprojectitsmap_201270746.Wizard;
-
+// Design inspiration fra https://plus.google.com/+RomanNurik/posts/6cVymZvn3f4
 import android.graphics.Color;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -28,6 +28,8 @@ import java.util.Calendar;
 import java.util.List;
 
 public class WizardActivity extends ActionBarActivity {
+
+
 
     // The pager widget, which handles animation and allows swiping horizontally to access previous
     // and next wizard steps.
