@@ -16,7 +16,6 @@
 
     <string name="pref_title_activity_name">Activity name</string>
     <string name="pref_key_activity_name">activity_name</string>
-    <string name="pref_default_activity_name">Default Activity</string>
 
     <string name="pref_title_activity_duration">Activity Duration</string>
     <string name="pref_key_activity_duration">activity_duration</string>

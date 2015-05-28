@@ -124,8 +124,10 @@ public class SettingsActivity extends PreferenceActivity {
             String nightMode = activity.getNightMode();
 
             if (nightMode != null) {
-                editor.putString("nightPrefA_Key", nightMode.split(",")[0]);
-                editor.putString("nightPrefB_Key", nightMode.split(",")[1]);
+                if(!nightMode.equals("")) {
+                    editor.putString("nightPrefA_Key", nightMode.split(",")[0]);
+                    editor.putString("nightPrefB_Key", nightMode.split(",")[1]);
+                }
             }
             editor.apply();
         }
@@ -223,13 +225,15 @@ public class SettingsActivity extends PreferenceActivity {
             activity.setMinTimeInterval(60);
         }
         preference = (Preference)findPreference(getString(R.string.pref_key_night_from));
-        if(preference.getSummary() != null)
+        if(preference.getSummary() != null || !preference.getSummary().equals(""))
         {
             String nightMode = preference.getSummary().toString();
             preference = (Preference)findPreference(getString(R.string.pref_key_night_to));
             nightMode += "," + preference.getSummary().toString();
             activity.setNightMode(nightMode);
         }
+
+        activity.setNightMode("");
 
         dataSource.updateActivity(activity);
         dataSource.close();
@@ -314,13 +318,13 @@ public class SettingsActivity extends PreferenceActivity {
                 switch(preference.getKey()) {
                     case "nightPrefA_Key":
                     {
-                        String nightA = PreferenceManager.getDefaultSharedPreferences(preference.getContext()).getString("nightPrefA_Key", "-");
+                        String nightA = PreferenceManager.getDefaultSharedPreferences(preference.getContext()).getString("nightPrefA_Key", "");
                         preference.setSummary(nightA);
                         break;
                     }
                     case "nightPrefB_Key":
                     {
-                        String nightB = PreferenceManager.getDefaultSharedPreferences(preference.getContext()).getString("nightPrefB_Key", "-");
+                        String nightB = PreferenceManager.getDefaultSharedPreferences(preference.getContext()).getString("nightPrefB_Key", "");
                         preference.setSummary(nightB);
                         break;
                     }

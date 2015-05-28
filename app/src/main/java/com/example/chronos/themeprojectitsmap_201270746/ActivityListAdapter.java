@@ -2,11 +2,13 @@ package com.example.chronos.themeprojectitsmap_201270746;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.drawable.Drawable;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +37,9 @@ public class ActivityListAdapter extends ArrayAdapter
     public ActivityListAdapter(Context context, int textViewResourceId , List<ActivityModel> list )
     {
         super(context, textViewResourceId, list);
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        selected_position = sharedPreferences.getInt("checkedId", -1);
+
         mContext = context;
         id = textViewResourceId;
         items = list;
@@ -80,13 +85,28 @@ public class ActivityListAdapter extends ArrayAdapter
 
                 if (isChecked) {
                     selected_position = position;
-                    Intent intent = new Intent(getContext(), ReminderService.class);
-                    intent.putExtra(Constants.ACTIVITY_ID, items.get(position).getId());
-                    getContext().startService(intent);
+
+                    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+                    if(!sharedPreferences.getBoolean(Constants.Service.SERVICE_RUNNING, false))
+                    {
+                        Intent intent = new Intent(getContext(), ReminderService.class);
+                        intent.putExtra(Constants.ACTIVITY_ID, items.get(position).getId());
+                        getContext().startService(intent);
+                    }
+
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putInt("checkedId", position);
+                    editor.commit();
 
                 } else {
-                    Intent intent = new Intent(getContext(),ReminderService.class);
-                    getContext().stopService(intent);
+                    Intent stopIntent = new Intent(Constants.Service.SERVICE_BROADCAST);
+                    stopIntent.putExtra(Constants.BroadcastParams.BROADCAST_METHOD, Constants.BroadcastMethods.SERVICE_STOP.ordinal());
+                    getContext().sendBroadcast(stopIntent);
+
+                    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.remove("checkedId");
+                    editor.commit();
                     selected_position = -1;
                 }
                 notifyDataSetChanged();

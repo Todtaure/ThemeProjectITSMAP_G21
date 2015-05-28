@@ -48,7 +48,9 @@ public class ReminderService extends Service {
     private AlarmManager alarmManager;
     private CalendarInfo calendarInfo;
     private boolean activitiesResetted = false;
+    private boolean serviceSnoozed = false;
     private int serviceId;
+    private boolean firstTimeSetup = true;
 
 
     @Override
@@ -85,6 +87,10 @@ public class ReminderService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId)
     {
         Log.d(Constants.Debug.LOG_TAG, "ReminderService.onStartCommand");
+        if(!firstTimeSetup || intent == null)
+        {
+            return START_NOT_STICKY;
+        }
 
         registerReceiver(ServiceReceiver, new IntentFilter(Constants.Service.SERVICE_BROADCAST));
         long activityId = intent.getLongExtra(Constants.ACTIVITY_ID, -1);
@@ -109,11 +115,6 @@ public class ReminderService extends Service {
         //Set timer for reset of activity counters
         setResetTimer();
 
-        //TODO remove after debug!
-        boolean success = isDNDOrNightMode();
-        resetAllActivityCounters();
-        notifyUser();
-
         Message msg = mServiceHandler.obtainMessage();
         serviceId = startId;
 
@@ -124,7 +125,9 @@ public class ReminderService extends Service {
         msg.setData(bundle);
         mServiceHandler.sendMessage(msg);
 
-        return START_STICKY;
+        firstTimeSetup = false;
+
+        return START_NOT_STICKY;
     }
 
     @Override
@@ -137,6 +140,13 @@ public class ReminderService extends Service {
         PendingIntent pendingUpdateIntent = PendingIntent.getService(this, 0, updateServiceIntent, 0);
         alarmManager.cancel(pendingUpdateIntent);
 
+        mServiceLooper.quit();
+
+        currentActivity.setIsOff(true);
+        dataSource.open();
+        dataSource.updateActivity(currentActivity);
+        dataSource.close();
+        firstTimeSetup = true;
         unregisterReceiver(ServiceReceiver);
     }
 
@@ -168,16 +178,16 @@ public class ReminderService extends Service {
                 }
                 case SNOOZE : {
                     setAlarm(snoozeInterval, Constants.BroadcastMethods.ALARM_WAKEUP);
-                    currentActivity.setIsSnooze(true);
+                    serviceSnoozed = true;
                     break;
                 }
                 case ALARM_WAKEUP: {
-                    currentActivity.setIsSnooze(false);
+                    serviceSnoozed = false;
                     break;
                 }
                 case ALARM_SERVICE_CHECK:
                 {
-                    if(currentActivity.getIsSnooze())
+                    if(currentActivity.getIsSnooze() || serviceSnoozed)
                     {
                         break;
                     }
@@ -195,7 +205,7 @@ public class ReminderService extends Service {
                 }
                 case ALARM_NOTIFICATION:
                 {
-                    if(currentActivity.getIsSnooze() || currentActivity.getDone())
+                    if(currentActivity.getIsSnooze() || currentActivity.getDone() | serviceSnoozed)
                     {
                         break;
                     }
@@ -314,7 +324,7 @@ public class ReminderService extends Service {
 
         Intent snoozeIntent = new Intent(Constants.Service.SERVICE_BROADCAST);
         snoozeIntent.putExtra(Constants.BroadcastParams.BROADCAST_METHOD, Constants.BroadcastMethods.ACTIVITY_SNOOZED.ordinal());
-        PendingIntent snoozePending = PendingIntent.getBroadcast(this, 0, snoozeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent snoozePending = PendingIntent.getBroadcast(this, 1, snoozeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Intent deleteIntent = new Intent(Constants.Service.SERVICE_BROADCAST);
         deleteIntent.putExtra(Constants.BroadcastParams.BROADCAST_METHOD, Constants.BroadcastMethods.ACTIVITY_DONE.ordinal());
@@ -322,7 +332,7 @@ public class ReminderService extends Service {
 
         Notification n  = new Notification.Builder(this)
                 .setContentTitle("Activity Reminder")
-                .setContentText("There is time for your Activity!")
+                .setContentText("It is time for " + currentActivity.getName() + " !")
                 .setSmallIcon(R.drawable.ic_stat_smiley)
                 .setAutoCancel(false)
                 .addAction(R.drawable.ic_stat_bell, "Snooze", snoozePending)
@@ -364,7 +374,6 @@ public class ReminderService extends Service {
 
         SimpleTimeZone pdt = new SimpleTimeZone(1 * 60 * 60 * 1000, ids[0]);
 
-        // set up rules for daylight savings time
         pdt.setStartRule(Calendar.APRIL, 1, Calendar.SUNDAY, 2 * 60 * 60 * 1000);
         pdt.setEndRule(Calendar.OCTOBER, -1, Calendar.SUNDAY, 2 * 60 * 60 * 1000);
 
