@@ -19,6 +19,11 @@ public final class Constants {
         public static final String SERVICE_BROADCAST = "reminder-service-event";
 
         public static final String SERVICE_RUNNING = "SERVICE_RUNNING";
+
+        public static final int SNOOZE_APP = 0;
+        public static final int ACTIVITY_UPDATED = 1;
+        public static final int ACTIVITY_STATE_CHANGE = 2;
+        public static final int SERVICE_STOP = 3;
     }
 
     public static abstract class Messages
@@ -47,15 +52,11 @@ public final class Constants {
     public static enum BroadcastMethods
     {
         DEFAULT_NONE,
-        SNOOZE,
         ALARM_WAKEUP,
         ALARM_SERVICE_CHECK,
         ALARM_NOTIFICATION,
-        ACTIVITY_UPDATED,
-        ACTIVITY_STATE_CHANGE,
         ACTIVITY_SNOOZED,
         ACTIVITY_DONE,
-        SERVICE_STOP,
         SERVICE_RESET_ACTIVITIES
     }
 

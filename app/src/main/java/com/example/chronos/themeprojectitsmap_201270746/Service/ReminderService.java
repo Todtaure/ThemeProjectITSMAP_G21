@@ -52,12 +52,51 @@ public class ReminderService extends Service {
     private int serviceId;
     private boolean firstTimeSetup = true;
 
+    final Messenger mMessenger = new Messenger(new IncomingHandler());
+
 
     @Override
-    public IBinder onBind(Intent intent)
-    {
-        //Handle bind when app has new information (settings changed etc.)
-        return null;
+
+    public IBinder onBind(Intent intent) {
+
+        Log.d(Constants.Debug.LOG_TAG, "ReminderService.onBind");
+
+        return mMessenger.getBinder();
+
+    }
+
+    Messenger mResponseMessenger = null;
+
+    class IncomingHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            Bundle b = msg.getData();
+            switch (msg.what) {
+                case Constants.Service.SNOOZE_APP:
+                    if (b != null) {
+                        setAlarm(b.getInt(Constants.BroadcastParams.SNOOZE_INTERVAL), Constants.BroadcastMethods.ALARM_WAKEUP);
+                        serviceSnoozed = true;
+                    }
+                    break;
+                case Constants.Service.ACTIVITY_UPDATED:
+                    if (b != null) {
+                        isThisActivityChanged(b.getInt(Constants.ACTIVITY_ID, -1));
+                    }
+                    break;
+                case Constants.Service.ACTIVITY_STATE_CHANGE:
+                {
+                    setNewActivity(b.getInt(Constants.ACTIVITY_ID, -1));
+                    break;
+                }
+                case Constants.Service.SERVICE_STOP:
+                {
+                    stopSelf();
+                    break;
+                }
+                default:
+                    super.handleMessage(msg);
+            }
+        }
     }
 
     @Override
@@ -87,37 +126,36 @@ public class ReminderService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId)
     {
         Log.d(Constants.Debug.LOG_TAG, "ReminderService.onStartCommand");
-        if(!firstTimeSetup || intent == null)
+        if(!firstTimeSetup)
         {
             return START_NOT_STICKY;
         }
 
         registerReceiver(ServiceReceiver, new IntentFilter(Constants.Service.SERVICE_BROADCAST));
-        long activityId = intent.getLongExtra(Constants.ACTIVITY_ID, -1);
-        if(activityId == -1)
-        {
-            Toast.makeText(getBaseContext(), "No active Activity.", Toast.LENGTH_LONG).show();
-            stopSelf();
-        }
-
-        dataSource.open();
-        currentActivity = dataSource.getActivityById(activityId);
-        if(currentActivity == null)
-        {
-            Toast.makeText(getBaseContext(), "Activity could not be retrieved.", Toast.LENGTH_LONG).show();
-            dataSource.close();
-            stopSelf();
-        }
-        currentActivity.setIsOff(false);
-        dataSource.updateActivity(currentActivity);
-        dataSource.close();
+//        long activityId = intent.getLongExtra(Constants.ACTIVITY_ID, -1);
+//        if(activityId == -1)
+//        {
+//            Toast.makeText(getBaseContext(), "No active Activity.", Toast.LENGTH_LONG).show();
+//            stopSelf();
+//        }
+//
+//        dataSource.open();
+//        currentActivity = dataSource.getActivityById(activityId);
+//        if(currentActivity == null)
+//        {
+//            Toast.makeText(getBaseContext(), "Activity could not be retrieved.", Toast.LENGTH_LONG).show();
+//            dataSource.close();
+//            stopSelf();
+//        }
+//        currentActivity.setIsOff(false);
+//        dataSource.updateActivity(currentActivity);
+//        dataSource.close();
 
         //Set timer for reset of activity counters
         setResetTimer();
 
         Message msg = mServiceHandler.obtainMessage();
         serviceId = startId;
-
         Bundle bundle = new Bundle();
         bundle.putBoolean(Constants.Debug.IS_DEBUG, false);
 
@@ -140,14 +178,17 @@ public class ReminderService extends Service {
         PendingIntent pendingUpdateIntent = PendingIntent.getService(this, 0, updateServiceIntent, 0);
         alarmManager.cancel(pendingUpdateIntent);
 
+        firstTimeSetup = true;
+        unregisterReceiver(ServiceReceiver);
         mServiceLooper.quit();
 
+        if(currentActivity == null) {
+            return;
+        }
         currentActivity.setIsOff(true);
         dataSource.open();
         dataSource.updateActivity(currentActivity);
         dataSource.close();
-        firstTimeSetup = true;
-        unregisterReceiver(ServiceReceiver);
     }
 
     private void setAlarm(int minutes, Constants.BroadcastMethods type)
@@ -164,7 +205,6 @@ public class ReminderService extends Service {
     {
         @Override
         public void onReceive(Context context, Intent intent) {
-            int snoozeInterval = intent.getIntExtra(Constants.BroadcastParams.SNOOZE_INTERVAL, 0);
             long activityId = intent.getLongExtra(Constants.ACTIVITY_ID, -1);
             Log.d(Constants.Debug.LOG_TAG, "ServiceBroadcastReceiver");
             //TODO: change to different method, since expensive
@@ -174,11 +214,6 @@ public class ReminderService extends Service {
             {
                 case DEFAULT_NONE:
                 {
-                    break;
-                }
-                case SNOOZE : {
-                    setAlarm(snoozeInterval, Constants.BroadcastMethods.ALARM_WAKEUP);
-                    serviceSnoozed = true;
                     break;
                 }
                 case ALARM_WAKEUP: {
@@ -213,15 +248,6 @@ public class ReminderService extends Service {
                     setAlarm(Constants.Service.UPDATE_INTERVAL_VAL, Constants.BroadcastMethods.ALARM_SERVICE_CHECK);
                     break;
                 }
-                case ACTIVITY_UPDATED:
-                {
-                    isThisActivityChanged(activityId);
-                }
-                case ACTIVITY_STATE_CHANGE:
-                {
-                    setNewActivity(activityId);
-                    break;
-                }
                 case ACTIVITY_SNOOZED:
                 {
                     incrementActivityReminder();
@@ -234,11 +260,6 @@ public class ReminderService extends Service {
                     {
                         setActivityDone();
                     }
-                    break;
-                }
-                case SERVICE_STOP:
-                {
-                    stopSelf();
                     break;
                 }
                 case SERVICE_RESET_ACTIVITIES:
@@ -265,6 +286,10 @@ public class ReminderService extends Service {
     }
 
     private void isThisActivityChanged(long activityId) {
+        if(currentActivity == null)
+        {
+            return;
+        }
         if(activityId != currentActivity.getId())
         {
             return;
@@ -295,6 +320,10 @@ public class ReminderService extends Service {
     }
 
     private void setActivityDone() {
+        if(currentActivity == null)
+        {
+            return;
+        }
         dataSource.open();
         currentActivity.setDone(true);
         dataSource.updateActivity(currentActivity);
@@ -302,6 +331,10 @@ public class ReminderService extends Service {
     }
 
     private void incrementActivityReminder() {
+        if(currentActivity == null)
+        {
+            return;
+        }
         dataSource.open();
         currentActivity.incrementReminderCounter();
         if(currentActivity.getMaxReminders() <= currentActivity.getReminderCounter())
@@ -315,6 +348,10 @@ public class ReminderService extends Service {
     }
 
     private void notifyUser() {
+        if(currentActivity == null)
+        {
+            return;
+        }
         if(currentActivity.getIsSnooze() || currentActivity.getIsOff())
         {
             return;
@@ -370,6 +407,10 @@ public class ReminderService extends Service {
     }
 
     private boolean isDNDOrNightMode() {
+        if(currentActivity == null)
+        {
+            return false;
+        }
         String[] ids = TimeZone.getAvailableIDs(1 * 60 * 60 * 1000);
 
         SimpleTimeZone pdt = new SimpleTimeZone(1 * 60 * 60 * 1000, ids[0]);
@@ -484,11 +525,15 @@ public class ReminderService extends Service {
             activity.setIsSnooze(false);
             activity.setReminderCounter(0);
             activity.setIsOff(true);
-            if(activity.getId() == currentActivity.getId())
+            if(currentActivity != null)
             {
-                activity.setIsOff(false);
-                currentActivity = activity;
+                if(activity.getId() == currentActivity.getId())
+                {
+                    activity.setIsOff(false);
+                    currentActivity = activity;
+                }
             }
+
             dataSource.updateActivity(activity);
         }
 

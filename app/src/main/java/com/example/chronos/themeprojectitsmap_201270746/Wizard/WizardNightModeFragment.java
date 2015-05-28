@@ -142,7 +142,7 @@ public class WizardNightModeFragment extends Fragment implements View.OnClickLis
         }
     }
 
-    // har fundet denne metode til at disable automatisk keyboard via følgende link
+    // har fundet denne metode til at disable automatisk keyboard via foelgende link
     // http://stackoverflow.com/questions/10636635/disable-keyboard-on-edittext
     private void disableKeyboardPopup(EditText editText) {
         editText.setOnTouchListener(new View.OnTouchListener() {

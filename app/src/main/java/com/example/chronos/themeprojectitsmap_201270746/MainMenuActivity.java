@@ -15,7 +15,9 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.IBinder;
+import android.os.Message;
 import android.os.Messenger;
+import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -107,9 +109,8 @@ public class MainMenuActivity extends Activity {
                     {
                         return;
                     }
-                    Intent intent = new Intent(getBaseContext(), ReminderService.class);
-                    intent.putExtra(Constants.ACTIVITY_ID, listItemId);
-                    getApplicationContext().startService(intent);
+                    bindService(new Intent(getString(R.string.service_filter_name)), mConn, Context.BIND_AUTO_CREATE);
+                    sendToService(listItemId, Constants.Service.ACTIVITY_STATE_CHANGE);
 
                     SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
                     SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -241,10 +242,7 @@ public class MainMenuActivity extends Activity {
 
                 int snoozeInterval = (snoozeHour*60 + snoozeMinute) - (timeSinceMidnight/1000)/60;
 
-                Intent snoozeIntent = new Intent(Constants.Service.SERVICE_BROADCAST);
-                snoozeIntent.putExtra(Constants.BroadcastParams.BROADCAST_METHOD,Constants.BroadcastMethods.SNOOZE.ordinal());
-                snoozeIntent.putExtra(Constants.BroadcastParams.SNOOZE_INTERVAL, snoozeInterval);
-                sendBroadcast(snoozeIntent);
+                sendToService(listItemId, Constants.Service.SNOOZE_APP, snoozeInterval);
 
                 popup.dismiss();
             }
@@ -252,16 +250,92 @@ public class MainMenuActivity extends Activity {
     }
 
     public void onAppOffBtn() {
-        Intent snoozeIntent = new Intent(Constants.Service.SERVICE_BROADCAST);
-        snoozeIntent.putExtra(Constants.BroadcastParams.BROADCAST_METHOD,Constants.BroadcastMethods.SERVICE_STOP.ordinal());
-        sendBroadcast(snoozeIntent);
+        sendToService(listItemId, Constants.Service.SERVICE_STOP);
     }
 
     @Override
-    public void onDestroy()
+    public void onPause()
     {
-        super.onDestroy();
+        super.onPause();
+        if (mServiceConnected) {
+
+            unbindService(mConn);
+            mServiceConnected = false;
+        }
     }
+
+    @Override
+    public void onStop()
+    {
+        super.onStop();
+
+        if (mServiceConnected) {
+
+            unbindService(mConn);
+            mServiceConnected = false;
+        }
+    }
+
+    /**
+     * Sends message with text stored in bundle extra data ("data" key).
+    */
+
+    public void sendToService(long activityId, int messageType)
+    {
+        sendToService(activityId, messageType, 0);
+    }
+
+    public void sendToService(long activityId, int messageType, int snoozeInterval ) {
+        if (mServiceConnected) {
+            Message msg = Message.obtain(null, messageType);
+
+            Bundle b = new Bundle();
+            b.putLong(Constants.ACTIVITY_ID, activityId);
+            b.putInt(Constants.BroadcastParams.SNOOZE_INTERVAL, snoozeInterval);
+            msg.setData(b);
+
+            try {
+                mService.send(msg);
+            } catch (RemoteException e) {
+                // We always have to trap RemoteException
+                // (DeadObjectException
+                // is thrown if the target Handler no longer exists)
+
+                e.printStackTrace();
+            }
+        } else {
+            Log.d(Constants.Debug.LOG_TAG, "Cannot send - not connected to service.");
+        }
+
+    }
+
+
+    Messenger mService = null;
+    boolean mServiceConnected = false;
+
+    /**
+     * Class for interacting with the main interface of the service.
+     */
+    private ServiceConnection mConn = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            Log.d(Constants.Debug.LOG_TAG, "Connected to service.");
+
+            mService = new Messenger(service);
+            mServiceConnected = true;
+        }
+
+        /**
+         * Connection dropped.
+         */
+        @Override
+        public void onServiceDisconnected(ComponentName className) {
+
+            Log.d(Constants.Debug.LOG_TAG, "Disconnected from service.");
+            mService = null;
+            mServiceConnected = false;
+        }
+    };
 }
 
 

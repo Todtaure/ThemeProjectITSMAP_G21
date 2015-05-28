@@ -1,5 +1,5 @@
 package com.example.chronos.themeprojectitsmap_201270746.Service;
-// Har brugt dette link som inspiration til at tilgå kalenderen
+// Har brugt dette link som inspiration til at tilgaa kalenderen
 // http://www.techrepublic.com/blog/software-engineer/programming-with-the-android-40-calendar-api-the-good-the-bad-and-the-ugly/
 import android.content.Context;
 import android.database.Cursor;
