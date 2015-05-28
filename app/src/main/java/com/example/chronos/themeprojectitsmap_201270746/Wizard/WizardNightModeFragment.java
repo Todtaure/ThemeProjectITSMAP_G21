@@ -24,10 +24,10 @@ public class WizardNightModeFragment extends Fragment implements View.OnClickLis
 
     private WizardActivity parentActivity;
 
-    EditText editTextNightModeFromTime;
-    EditText editTextNightModeToTime;
+    private EditText editTextNightModeFromTime;
+    private EditText editTextNightModeToTime;
 
-    InputMethodManager imm;
+    private InputMethodManager imm;
 
     public WizardNightModeFragment() {
         // Required empty public constructor

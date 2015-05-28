@@ -23,14 +23,14 @@ public class WizardDontDisturbFragment extends Fragment implements View.OnClickL
 
     private WizardActivity parentActivity;
 
-    InputMethodManager imm;
+    private InputMethodManager imm;
 
-    EditText editTextNotDisturbMode1FromTime;
-    EditText editTextNotDisturbMode1ToTime;
-    EditText editTextNotDisturbMode2FromTime;
-    EditText editTextNotDisturbMode2ToTime;
-    EditText editTextNotDisturbMode3FromTime;
-    EditText editTextNotDisturbMode3ToTime;
+    private EditText editTextNotDisturbMode1FromTime;
+    private EditText editTextNotDisturbMode1ToTime;
+    private EditText editTextNotDisturbMode2FromTime;
+    private EditText editTextNotDisturbMode2ToTime;
+    private EditText editTextNotDisturbMode3FromTime;
+    private EditText editTextNotDisturbMode3ToTime;
 
 
     public WizardDontDisturbFragment() {

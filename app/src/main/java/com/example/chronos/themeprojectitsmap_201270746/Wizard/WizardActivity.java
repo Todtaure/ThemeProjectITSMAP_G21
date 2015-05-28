@@ -21,6 +21,7 @@ import com.example.chronos.themeprojectitsmap_201270746.Database.Models.OffInter
 import com.example.chronos.themeprojectitsmap_201270746.MainMenuActivity;
 import com.example.chronos.themeprojectitsmap_201270746.R;
 import com.example.chronos.themeprojectitsmap_201270746.Service.CalendarInfo;
+import com.example.chronos.themeprojectitsmap_201270746.Utilities.Constants;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -52,7 +53,7 @@ public class WizardActivity extends ActionBarActivity {
     private boolean isLastPage = false;
 
     public WizardData activityObject;
-    ActivityDataSource activityDataSource;
+    private ActivityDataSource activityDataSource;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,8 +69,7 @@ public class WizardActivity extends ActionBarActivity {
             activityDataSource = new ActivityDataSource(this);
         }
         catch ( SQLException e){
-            Toast.makeText(getBaseContext(), "Failed to create sql instance",
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(getBaseContext(), Constants.Messages.ERR_DB_CONNECTION, Toast.LENGTH_LONG).show();
         }
 
 

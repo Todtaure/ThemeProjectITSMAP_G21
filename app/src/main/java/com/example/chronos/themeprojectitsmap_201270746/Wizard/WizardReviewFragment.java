@@ -21,7 +21,7 @@ public class WizardReviewFragment extends Fragment {
 
     private WizardActivity parentActivity;
 
-    ListView listView;
+    private ListView listView;
 
     public WizardReviewFragment() {
         // Required empty public constructor
