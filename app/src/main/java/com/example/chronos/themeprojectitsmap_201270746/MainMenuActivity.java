@@ -2,15 +2,21 @@ package com.example.chronos.themeprojectitsmap_201270746;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.StateListDrawable;
+import android.os.IBinder;
+import android.os.Messenger;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.internal.widget.AdapterViewCompat;
@@ -64,6 +70,7 @@ public class MainMenuActivity extends Activity {
     private ActivityListAdapter activityAdapter;
     private ListView activityList;
     private long listItemId = -1;
+    private boolean serviceRunning;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,27 +95,34 @@ public class MainMenuActivity extends Activity {
             }
         });
 
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        serviceRunning = sharedPreferences.getBoolean(Constants.Service.SERVICE_RUNNING, false);
+
         offSwitch = (Switch) findViewById(R.id.offSwitch);
 
         offSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isOn) {
-                dataSource.open();
-                ActivityModel setIsSnooze = new ActivityModel();
                 if (isOn && listItemId >= 0) {
                     offSwitch.setText("On");
-                    setIsSnooze.setIsSnooze(false);
+                    if(serviceRunning)
+                    {
+                        return;
+                    }
+                    Intent intent = new Intent(getBaseContext(), ReminderService.class);
+                    intent.putExtra(Constants.ACTIVITY_ID, listItemId);
+                    getApplicationContext().startService(intent);
 
+                    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putBoolean(Constants.Service.SERVICE_RUNNING, true);
+                    editor.commit();
                 } else {
                     offSwitch.setText("Off");
-                    setIsSnooze.setIsSnooze(true);
-                    onDestroy();
+                    onAppOffBtn();
                 }
-
-                dataSource.close();
             }
         });
-
 
         activityList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
@@ -261,12 +275,16 @@ public class MainMenuActivity extends Activity {
         });
     }
 
+    public void onAppOffBtn() {
+        Intent snoozeIntent = new Intent(Constants.Service.SERVICE_BROADCAST);
+        snoozeIntent.putExtra(Constants.BroadcastParams.BROADCAST_METHOD,Constants.BroadcastMethods.SERVICE_STOP.ordinal());
+        sendBroadcast(snoozeIntent);
+    }
+
     @Override
     public void onDestroy()
     {
         super.onDestroy();
-        //TODO: Needs to go when done!
-        stopService(new Intent(this,ReminderService.class));
     }
 }
 

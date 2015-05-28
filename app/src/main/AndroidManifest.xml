@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.chronos.themeprojectitsmap_201270746" >
+    package="com.example.chronos.themeprojectitsmap_201270746">
 
 
-    <uses-permission android:name="android.permission.READ_CALENDAR"/>
+    <uses-permission android:name="android.permission.READ_CALENDAR"></uses-permission>
 
     <application
         android:allowBackup="true"
@@ -24,9 +24,10 @@
             android:label="@string/title_activity_settings" >
         </activity>
 
-        <service android:name=".Service.ReminderService" />
-
-
+        <service
+            android:name=".Service.ReminderService"
+            android:process="remote"
+            />
 
         <activity
             android:name=".Wizard.WizardActivity"

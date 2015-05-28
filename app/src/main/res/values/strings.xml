@@ -40,7 +40,7 @@
     <string name="wizard_review_item_no">No</string>
     <string name="wizard_review_not_disturb">Not disturb</string>
 
-
+    <string name="service_process_name">:ReminderService</string>
 
 <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
