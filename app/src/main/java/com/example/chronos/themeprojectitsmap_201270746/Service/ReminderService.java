@@ -10,7 +10,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.drawable.Drawable;
 import android.os.*;
 import android.os.Process;
 import android.util.Log;
@@ -25,8 +24,11 @@ import com.example.chronos.themeprojectitsmap_201270746.R;
 import com.example.chronos.themeprojectitsmap_201270746.Utilities.Constants;
 
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.SimpleTimeZone;
@@ -44,9 +46,9 @@ public class ReminderService extends Service {
     private ActivityDataSource dataSource;
     private ActivityModel currentActivity;
     private AlarmManager alarmManager;
+    private CalendarInfo calendarInfo;
+    private boolean activitiesResetted = false;
     private int serviceId;
-    private int snoozeInterval;
-    private boolean isSnoozed = false;
 
 
     @Override
@@ -69,7 +71,7 @@ public class ReminderService extends Service {
             Toast.makeText(getBaseContext(), Constants.Messages.ERR_DB_CONNECTION, Toast.LENGTH_LONG).show();
         }
         alarmManager = (AlarmManager)getSystemService(Activity.ALARM_SERVICE);
-
+        calendarInfo = new CalendarInfo();
 
         HandlerThread thread = new HandlerThread("ServiceStartArguments",
                 Process.THREAD_PRIORITY_BACKGROUND);
@@ -85,9 +87,7 @@ public class ReminderService extends Service {
         Log.d(Constants.Debug.LOG_TAG, "ReminderService.onStartCommand");
 
         registerReceiver(ServiceReceiver, new IntentFilter(Constants.Service.SERVICE_BROADCAST));
-
         long activityId = intent.getLongExtra(Constants.ACTIVITY_ID, -1);
-
         if(activityId == -1)
         {
             Toast.makeText(getBaseContext(), "No active Activity.", Toast.LENGTH_LONG).show();
@@ -96,19 +96,22 @@ public class ReminderService extends Service {
 
         dataSource.open();
         currentActivity = dataSource.getActivityById(activityId);
-
         if(currentActivity == null)
         {
             Toast.makeText(getBaseContext(), "Activity could not be retrieved.", Toast.LENGTH_LONG).show();
             dataSource.close();
             stopSelf();
         }
-
         currentActivity.setIsOff(false);
-
         dataSource.updateActivity(currentActivity);
         dataSource.close();
 
+        //Set timer for reset of activity counters
+        setResetTimer();
+
+        //TODO remove after debug!
+        boolean success = isDNDOrNightMode();
+        resetAllActivityCounters();
         notifyUser();
 
         Message msg = mServiceHandler.obtainMessage();
@@ -152,54 +155,136 @@ public class ReminderService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             int snoozeInterval = intent.getIntExtra(Constants.BroadcastParams.SNOOZE_INTERVAL, 0);
-
+            long activityId = intent.getLongExtra(Constants.ACTIVITY_ID, -1);
+            Log.d(Constants.Debug.LOG_TAG, "ServiceBroadcastReceiver");
             //TODO: change to different method, since expensive
             Constants.BroadcastMethods method = Constants.BroadcastMethods.values()[intent.getIntExtra(Constants.BroadcastParams.BROADCAST_METHOD, 0)];
 
             switch(method)
             {
+                case DEFAULT_NONE:
+                {
+                    break;
+                }
                 case SNOOZE : {
                     setAlarm(snoozeInterval, Constants.BroadcastMethods.ALARM_WAKEUP);
-                    isSnoozed = true;
+                    currentActivity.setIsSnooze(true);
                     break;
                 }
                 case ALARM_WAKEUP: {
-                    isSnoozed = false;
+                    currentActivity.setIsSnooze(false);
                     break;
                 }
                 case ALARM_SERVICE_CHECK:
                 {
-                    if(!isDNDOrNightMode()) {
+                    if(currentActivity.getIsSnooze())
+                    {
+                        break;
+                    }
+
+                    if(!isDNDOrNightMode() || !currentActivity.getDone()) {
                         if(checkCalendar())
                         {
+                            activitiesResetted = false;
                             break;
                         }
                     }
                     setAlarm(Constants.Service.UPDATE_INTERVAL_VAL, Constants.BroadcastMethods.ALARM_SERVICE_CHECK);
-
+                    setResetTimer();
                     break;
                 }
                 case ALARM_NOTIFICATION:
                 {
+                    if(currentActivity.getIsSnooze() || currentActivity.getDone())
+                    {
+                        break;
+                    }
                     notifyUser();
                     setAlarm(Constants.Service.UPDATE_INTERVAL_VAL, Constants.BroadcastMethods.ALARM_SERVICE_CHECK);
+                    break;
+                }
+                case ACTIVITY_UPDATED:
+                {
+                    isThisActivityChanged(activityId);
+                }
+                case ACTIVITY_STATE_CHANGE:
+                {
+                    setNewActivity(activityId);
                     break;
                 }
                 case ACTIVITY_SNOOZED:
                 {
                     incrementActivityReminder();
+                    setAlarm(Constants.Service.UPDATE_INTERVAL_VAL, Constants.BroadcastMethods.ALARM_SERVICE_CHECK);
                     break;
                 }
                 case ACTIVITY_DONE:
                 {
-                    checkActivityDone();
+                    if(!currentActivity.getIsSnooze())
+                    {
+                        setActivityDone();
+                    }
+                    break;
+                }
+                case SERVICE_STOP:
+                {
+                    stopSelf();
+                    break;
+                }
+                case SERVICE_RESET_ACTIVITIES:
+                {
+                    resetAllActivityCounters();
                     break;
                 }
             }
         }
     };
 
-    private void checkActivityDone() {
+    private void setNewActivity(long activityId) {
+        dataSource.open();
+        ActivityModel updatedActivity = dataSource.getActivityById(activityId);
+        dataSource.close();
+
+        if(updatedActivity == null)
+        {
+            return;
+        }
+
+        currentActivity = updatedActivity;
+        resetService();
+    }
+
+    private void isThisActivityChanged(long activityId) {
+        if(activityId != currentActivity.getId())
+        {
+            return;
+        }
+
+        dataSource.open();
+        ActivityModel updatedActivity = dataSource.getActivityById(activityId);
+        dataSource.close();
+
+        if(updatedActivity == null)
+        {
+            stopSelf();
+        }
+
+        currentActivity = updatedActivity;
+        resetService();
+    }
+
+    private void resetService() {
+        Intent updateServiceIntent = new Intent(Constants.Service.SERVICE_BROADCAST);
+        PendingIntent pendingUpdateIntent = PendingIntent.getService(this, 0, updateServiceIntent, 0);
+        alarmManager.cancel(pendingUpdateIntent);
+
+        if(!checkCalendar())
+        {
+            setAlarm(Constants.Service.UPDATE_INTERVAL_VAL, Constants.BroadcastMethods.ALARM_SERVICE_CHECK);
+        }
+    }
+
+    private void setActivityDone() {
         dataSource.open();
         currentActivity.setDone(true);
         dataSource.updateActivity(currentActivity);
@@ -219,8 +304,7 @@ public class ReminderService extends Service {
         dataSource.close();
     }
 
-    private void notifyUser()
-    {
+    private void notifyUser() {
         if(currentActivity.getIsSnooze() || currentActivity.getIsOff())
         {
             return;
@@ -230,15 +314,21 @@ public class ReminderService extends Service {
 
         Intent snoozeIntent = new Intent(Constants.Service.SERVICE_BROADCAST);
         snoozeIntent.putExtra(Constants.BroadcastParams.BROADCAST_METHOD, Constants.BroadcastMethods.ACTIVITY_SNOOZED.ordinal());
+        PendingIntent snoozePending = PendingIntent.getBroadcast(this, 0, snoozeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        PendingIntent snoozePending = PendingIntent.getService(this, 0, snoozeIntent, 0);
+        Intent deleteIntent = new Intent(Constants.Service.SERVICE_BROADCAST);
+        deleteIntent.putExtra(Constants.BroadcastParams.BROADCAST_METHOD, Constants.BroadcastMethods.ACTIVITY_DONE.ordinal());
+        PendingIntent deletePending = PendingIntent.getBroadcast(this, 0, deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Notification n  = new Notification.Builder(this)
                 .setContentTitle("Activity Reminder")
-                .setContentText("You now have at least " + currentActivity.getMinTimeInterval() + " minutes all for yourself.")
-                .setSmallIcon(R.drawable.ic_stat_clipboard)
-                .setAutoCancel(true)
-                .addAction(R.drawable.ic_stat_bell, "Snooze", snoozePending).build();
+                .setContentText("There is time for your Activity!")
+                .setSmallIcon(R.drawable.ic_stat_smiley)
+                .setAutoCancel(false)
+                .addAction(R.drawable.ic_stat_bell, "Snooze", snoozePending)
+                .setDeleteIntent(deletePending)
+                .setPriority(BIND_IMPORTANT)
+                .build();
 
         n.defaults |= Notification.DEFAULT_SOUND;
         n.defaults |= Notification.DEFAULT_VIBRATE;
@@ -249,7 +339,7 @@ public class ReminderService extends Service {
         notificationManager.notify(0, n);
     }
 
-    private boolean isDNDOrNightMode() {
+    private void setResetTimer() {
         String[] ids = TimeZone.getAvailableIDs(1 * 60 * 60 * 1000);
         // create a Pacific Standard Time time zone
         SimpleTimeZone pdt = new SimpleTimeZone(1 * 60 * 60 * 1000, ids[0]);
@@ -262,23 +352,68 @@ public class ReminderService extends Service {
         int currentHour = calendar.get(Calendar.HOUR);
         int currentMinute = calendar.get(Calendar.MINUTE);
 
+        int timeTillMidnight = (24-currentHour)*60 - currentMinute;
+
+        if(timeTillMidnight <=  Constants.Service.UPDATE_INTERVAL_VAL) {
+            setAlarm(timeTillMidnight, Constants.BroadcastMethods.SERVICE_RESET_ACTIVITIES);
+        }
+    }
+
+    private boolean isDNDOrNightMode() {
+        String[] ids = TimeZone.getAvailableIDs(1 * 60 * 60 * 1000);
+
+        SimpleTimeZone pdt = new SimpleTimeZone(1 * 60 * 60 * 1000, ids[0]);
+
+        // set up rules for daylight savings time
+        pdt.setStartRule(Calendar.APRIL, 1, Calendar.SUNDAY, 2 * 60 * 60 * 1000);
+        pdt.setEndRule(Calendar.OCTOBER, -1, Calendar.SUNDAY, 2 * 60 * 60 * 1000);
+
+        Calendar startDate = new GregorianCalendar(pdt);
+        Calendar endDate = new GregorianCalendar(pdt);
+        Date now;
+
+        try {
+            now = new SimpleDateFormat("HH:mm").parse(String.valueOf(startDate.get(Calendar.HOUR_OF_DAY)) + ":" + String.valueOf(startDate.get(Calendar.MINUTE)));
+        }
+        catch(ParseException ex)
+        {
+            return false;
+        }
+
         String nightMode = currentActivity.getNightMode();
         String startTime, endTime;
-        int startHour, startMinute, endHour, endMinute;
 
         if(nightMode != null || nightMode.equals(""))
         {
             startTime = nightMode.split(",")[0];
             endTime  = nightMode.split(",")[1];
 
-            startHour = Integer.parseInt(startTime.split(":")[0]);
-            startMinute = Integer.parseInt(startTime.split(":")[1]);
+            Date startSimpleTime, endSimpleTime;
+            try {
 
-            endHour = Integer.parseInt(endTime.split(":")[0]);
-            endMinute = Integer.parseInt(endTime.split(":")[0]);
+                startSimpleTime = new SimpleDateFormat("HH:mm").parse(startTime);
+                startDate.setTime(startSimpleTime);
 
-            if( (currentHour > startHour && currentMinute > startMinute) || (currentHour < endHour && currentMinute < endMinute) )
+                endSimpleTime = new SimpleDateFormat("HH:mm").parse(endTime);
+                endDate.setTime(endSimpleTime);
+
+                if(Integer.parseInt(startTime.split(":")[0]) > Integer.parseInt(endTime.split(":")[0]))
+                {
+                    endDate.add(Calendar.DATE, 1);
+                }
+            }
+            catch(ParseException ex)
             {
+                return false;
+            }
+
+            if(now.after(startDate.getTime()) && now.before(endDate.getTime()))
+            {
+                if(!activitiesResetted)
+                {
+                    resetAllActivityCounters();
+                }
+
                 return true;
             }
         }
@@ -289,13 +424,25 @@ public class ReminderService extends Service {
             startTime = item.getOffInterval().split(",")[0];
             endTime = item.getOffInterval().split(",")[1];
 
-            startHour = Integer.parseInt(startTime.split(":")[0]);
-            startMinute = Integer.parseInt(startTime.split(":")[1]);
+            Date startSimpleTime, endSimpleTime;
+            try {
+                startSimpleTime = new SimpleDateFormat("HH:mm").parse(startTime);
+                startDate.setTime(startSimpleTime);
 
-            endHour = Integer.parseInt(endTime.split(":")[0]);
-            endMinute = Integer.parseInt(endTime.split(":")[0]);
+                endSimpleTime = new SimpleDateFormat("HH:mm").parse(endTime);
+                endDate.setTime(endSimpleTime);
 
-            if( (currentHour > startHour && currentMinute > startMinute) || (currentHour < endHour && currentMinute < endMinute) )
+                if(Integer.parseInt(startTime.split(":")[0]) > Integer.parseInt(endTime.split(":")[0]))
+                {
+                    endDate.add(Calendar.DATE, 1);
+                }
+            }
+            catch(ParseException ex)
+            {
+                return false;
+            }
+
+            if(now.after(startDate.getTime()) && now.before(endDate.getTime()))
             {
                 return true;
             }
@@ -306,7 +453,8 @@ public class ReminderService extends Service {
 
     private boolean checkCalendar() {
         int timeTillNextInterval = -1;
-        //get calender time
+
+        timeTillNextInterval = calendarInfo.getTimeInMinToNextFreeTimeSlot(this, currentActivity.getMinTimeInterval());
 
         if(timeTillNextInterval > Constants.Service.UPDATE_INTERVAL_VAL)
         {
@@ -315,6 +463,28 @@ public class ReminderService extends Service {
 
         setAlarm(timeTillNextInterval, Constants.BroadcastMethods.ALARM_NOTIFICATION);
         return true;
+    }
+
+    private void resetAllActivityCounters() {
+        dataSource.open();
+
+        List<ActivityModel> activityList = dataSource.getAllActivities();
+
+        for(ActivityModel activity : activityList)
+        {
+            activity.setIsSnooze(false);
+            activity.setReminderCounter(0);
+            activity.setIsOff(true);
+            if(activity.getId() == currentActivity.getId())
+            {
+                activity.setIsOff(false);
+                currentActivity = activity;
+            }
+            dataSource.updateActivity(activity);
+        }
+
+        dataSource.close();
+        activitiesResetted = true;
     }
 
     private final class ServiceHandler extends Handler {
@@ -339,7 +509,6 @@ public class ReminderService extends Service {
         {
             // Stop the service using the startId, so that we don't stop
             // the service in the middle of handling another job
-            Log.d(Constants.Debug.LOG_TAG, "ServiceHandler.handleMessage");
             serviceId = msg.arg1;
 
             Bundle bundle = msg.getData();

@@ -63,7 +63,7 @@ public class MainMenuActivity extends Activity {
     private ArrayList<ActivityModel> activities;
     private ActivityListAdapter activityAdapter;
     private ListView activityList;
-    private long listItemId;
+    private long listItemId = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,12 +110,11 @@ public class MainMenuActivity extends Activity {
         });
 
 
-
         activityList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                listItemId = id;
+                listItemId = activities.get(position).getId();
             }
         });
     }
@@ -147,7 +146,7 @@ public class MainMenuActivity extends Activity {
         activities = dataSource.getAllActivities();
 
         dataSource.close();
-
+        listItemId = -1;
         setActivityList();
     }
 
@@ -157,7 +156,6 @@ public class MainMenuActivity extends Activity {
 
         // Here, you set the data in your ListView
         activityList.setAdapter(activityAdapter);
-
     }
 
 
@@ -191,8 +189,12 @@ public class MainMenuActivity extends Activity {
 
     public void editBtn(View view)
     {
+        if(listItemId == -1)
+        {
+            return;
+        }
         Intent intent = new Intent(this, SettingsActivity.class);
-        intent.putExtra(Constants.ACTIVITY_ID, activities.get(0).getId());
+        intent.putExtra(Constants.ACTIVITY_ID, listItemId);
         startActivity(intent);
     }
 
@@ -267,6 +269,7 @@ public class MainMenuActivity extends Activity {
     public void onDestroy()
     {
         super.onDestroy();
+        //TODO: Needs to go when done!
         stopService(new Intent(this,ReminderService.class));
     }
 }

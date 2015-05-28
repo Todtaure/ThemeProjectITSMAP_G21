@@ -1,12 +1,15 @@
 package com.example.chronos.themeprojectitsmap_201270746;
 
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.DialogPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -99,43 +102,46 @@ public class SettingsActivity extends PreferenceActivity {
         Intent intent = getIntent();
         activityId = intent.getLongExtra(Constants.ACTIVITY_ID, -1);
 
-        if (activityId == -1) {
+        if (activityId != -1) {
+
+            dataSource.open();
+            final ActivityModel activity = dataSource.getActivityById(activityId);
+            dataSource.close();
+
+            if (activity == null) {
+                Toast.makeText(getBaseContext(), Constants.Messages.ERR_DB_READ, Toast.LENGTH_LONG).show();
+                activityId = -1;
+                finish();
+                return;
+            }
+            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+            SharedPreferences.Editor editor = settings.edit();
+
+            editor.putString("activity_name", activity.getName());
+            editor.putString("activity_duration", String.valueOf(activity.getMinTimeInterval()));
+            editor.putBoolean("pref_key_gps_status", !activity.getGpsData().isEmpty());
+
+            String nightMode = activity.getNightMode();
+
+            if (nightMode != null) {
+                editor.putString("nightPrefA_Key", nightMode.split(",")[0]);
+                editor.putString("nightPrefB_Key", nightMode.split(",")[1]);
+            }
+            editor.commit();
+        }
+        else
+        {
             Toast.makeText(getBaseContext(), "No Activity attached.", Toast.LENGTH_LONG).show();
-
-            // Bind the summaries of EditText/List/Dialog/Ringtone preferences to
-            // their values. When their values change, their summaries are updated
-            // to reflect the new value, per the Android Design guidelines.
-            bindPreferenceSummaryToValue(findPreference("activity_name"));
-            bindPreferenceSummaryToValue(findPreference("activity_duration"));
-            bindPreferenceSummaryToValue(findPreference("activity_locations"));
-            bindPreferenceSummaryToValue(findPreference("nightPrefA_Key"));
-            bindPreferenceSummaryToValue(findPreference("nightPrefB_Key"));
-
-            return;
         }
 
-        dataSource.open();
-        final ActivityModel activity = dataSource.getActivityById(activityId);
-        dataSource.close();
-
-        if (activity == null) {
-            Toast.makeText(getBaseContext(), Constants.Messages.ERR_DB_READ, Toast.LENGTH_LONG).show();
-            return;
-        }
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        SharedPreferences.Editor editor = settings.edit();
-
-        editor.putString("activity_name", activity.getName());
-        editor.putInt("pref_key_activity_duration", activity.getMinTimeInterval());
-        editor.putBoolean("pref_key_gps_status", !activity.getGpsData().isEmpty());
-
-        String nightMode = activity.getNightMode();
-
-        if (nightMode != null) {
-            editor.putString("nightPrefA_Key", nightMode.split(",")[0]);
-            editor.putString("nightPrefB_Key", nightMode.split(",")[1]);
-        }
-        editor.commit();
+        // Bind the summaries of EditText/List/Dialog/Ringtone preferences to
+        // their values. When their values change, their summaries are updated
+        // to reflect the new value, per the Android Design guidelines.
+        bindPreferenceSummaryToValue(findPreference("activity_name"));
+        bindPreferenceSummaryToValue(findPreference("activity_duration"));
+        bindPreferenceSummaryToValue(findPreference("activity_locations"));
+        bindPreferenceSummaryToValue(findPreference("nightPrefA_Key"));
+        bindPreferenceSummaryToValue(findPreference("nightPrefB_Key"));
 
         Preference buttonSave = (Preference)findPreference(getString(R.string.pref_key_delete));
         buttonSave.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -153,10 +159,31 @@ public class SettingsActivity extends PreferenceActivity {
                     }
                     if(preference.getKey() == getString(R.string.pref_key_delete))
                     {
-                        dataSource.open();
-                        dataSource.deleteActivityById(activityId);
-                        dataSource.close();
-                        activityId = -1;
+                        new AlertDialog.Builder(SettingsActivity.this)
+                                .setIcon(R.mipmap.ic_alert)
+                                .setTitle("Delete Activity")
+                                .setMessage("Are you sure you want to delete the activity?")
+                                .setCancelable(false)
+                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        ActivityDataSource deleteSource;
+                                        try {
+                                            deleteSource = new ActivityDataSource(getBaseContext());
+                                        } catch (SQLException ex) {
+                                            Toast.makeText(getBaseContext(), Constants.Messages.ERR_DB_CONNECTION, Toast.LENGTH_LONG).show();
+                                            return;
+                                        }
+                                        deleteSource.open();
+                                        deleteSource.deleteActivityById(activityId);
+                                        deleteSource.close();
+                                        sendBroadcastToService(Constants.BroadcastMethods.ACTIVITY_UPDATED);
+                                        activityId = -1;
+                                        finish();
+                                    }
+                                })
+                                .setNegativeButton("No", null)
+                                .show();
                     }
                 }
                 return false;
@@ -178,20 +205,44 @@ public class SettingsActivity extends PreferenceActivity {
         dataSource.open();
         ActivityModel activity = dataSource.getActivityById(activityId);
 
+        if(activity == null)
+        {
+            return;
+        }
+
         Preference preference = (Preference)findPreference(getString(R.string.pref_key_activity_name));
         activity.setName(preference.getSummary().toString());
 
         preference = (Preference)findPreference(getString(R.string.pref_key_activity_duration));
-        activity.setMinTimeInterval(Integer.parseInt(preference.getSummary().toString()));
 
+        try {
+            activity.setMinTimeInterval(Integer.parseInt(preference.getSummary().toString()));
+        }
+        catch(NumberFormatException ex)
+        {
+            activity.setMinTimeInterval(60);
+        }
         preference = (Preference)findPreference(getString(R.string.pref_key_night_from));
-        String nightMode = preference.getSummary().toString();
-        preference = (Preference)findPreference(getString(R.string.pref_key_night_to));
-        nightMode += "," + preference.getSummary().toString();
-        activity.setNightMode(nightMode);
+        if(preference.getSummary() != null)
+        {
+            String nightMode = preference.getSummary().toString();
+            preference = (Preference)findPreference(getString(R.string.pref_key_night_to));
+            nightMode += "," + preference.getSummary().toString();
+            activity.setNightMode(nightMode);
+        }
 
         dataSource.updateActivity(activity);
         dataSource.close();
+
+        sendBroadcastToService(Constants.BroadcastMethods.ACTIVITY_UPDATED);
+    }
+
+    private void sendBroadcastToService(Constants.BroadcastMethods type)
+    {
+        Intent intent = new Intent(Constants.Service.SERVICE_BROADCAST);
+        intent.putExtra(Constants.BroadcastParams.BROADCAST_METHOD, type.ordinal());
+        intent.putExtra(Constants.ACTIVITY_ID, activityId);
+        sendBroadcast(intent);
     }
 
     /**
@@ -247,6 +298,7 @@ public class SettingsActivity extends PreferenceActivity {
             if (preference instanceof ListPreference) {
                 // For list preferences, look up the correct display value in
                 // the preference's 'entries' list.
+
                 ListPreference listPreference = (ListPreference) preference;
                 int index = listPreference.findIndexOfValue(stringValue);
 
