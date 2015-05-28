@@ -269,7 +269,7 @@ public class MainMenuActivity extends Activity {
     public void onDestroy()
     {
         super.onDestroy();
-        //TODO: Det skal v�k n�r appen er done!
+        //TODO: Needs to go when done!
         stopService(new Intent(this,ReminderService.class));
     }
 }

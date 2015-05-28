@@ -177,6 +177,7 @@ public class SettingsActivity extends PreferenceActivity {
                                         deleteSource.open();
                                         deleteSource.deleteActivityById(activityId);
                                         deleteSource.close();
+                                        sendBroadcastToService(Constants.BroadcastMethods.ACTIVITY_UPDATED);
                                         activityId = -1;
                                         finish();
                                     }
@@ -232,6 +233,16 @@ public class SettingsActivity extends PreferenceActivity {
 
         dataSource.updateActivity(activity);
         dataSource.close();
+
+        sendBroadcastToService(Constants.BroadcastMethods.ACTIVITY_UPDATED);
+    }
+
+    private void sendBroadcastToService(Constants.BroadcastMethods type)
+    {
+        Intent intent = new Intent(Constants.Service.SERVICE_BROADCAST);
+        intent.putExtra(Constants.BroadcastParams.BROADCAST_METHOD, type.ordinal());
+        intent.putExtra(Constants.ACTIVITY_ID, activityId);
+        sendBroadcast(intent);
     }
 
     /**

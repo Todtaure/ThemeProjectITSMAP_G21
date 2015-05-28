@@ -12,7 +12,6 @@ public final class Constants {
 
     public static abstract class Service
     {
-        public static final String UPDATE_INTERVAL_KEY = "UPDATE_INTERVAL";
         public static final int UPDATE_INTERVAL_VAL = 60;
 
         public static final String SERVICE_HANDLER = "ReminderServiceHandler";
@@ -45,6 +44,7 @@ public final class Constants {
 
     public static enum BroadcastMethods
     {
+        DEFAULT_NONE,
         SNOOZE,
         ALARM_WAKEUP,
         ALARM_SERVICE_CHECK,
@@ -53,7 +53,8 @@ public final class Constants {
         ACTIVITY_STATE_CHANGE,
         ACTIVITY_SNOOZED,
         ACTIVITY_DONE,
-        SERVICE_STOP
+        SERVICE_STOP,
+        SERVICE_RESET_ACTIVITIES
     }
 
 
