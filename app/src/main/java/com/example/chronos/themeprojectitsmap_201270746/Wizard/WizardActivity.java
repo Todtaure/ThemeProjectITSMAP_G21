@@ -57,6 +57,8 @@ public class WizardActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wizard);
 
+        getSupportActionBar().hide();
+
         // Create object for wizard user information (singleton) used by wizard fragments
         activityObject = new WizardData();
 

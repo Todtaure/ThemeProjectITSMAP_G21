@@ -13,7 +13,7 @@
     <string name="wizard_new_activity_text">This Wizard will guide you through the creation of a new activity. Through the following pages you will be able to specify several settings for your activity</string>
     <string name="wizard_label_activity_name">Activity name:</string>
     <string name="wizard_hint_activity_name">e.g. running exercises</string>
-    <string name="wizard_label_activity_duration">Activity duration(mins):</string>
+    <string name="wizard_label_activity_duration">Activity duration(min):</string>
     <string name="wizard_hint_activity_duration">e.g. 60</string>
     <string name="wizard_night_mode_title">Night Mode</string>
     <string name="wizard_night_mode_text">Most people sleep at some time. So please specify a time period
@@ -32,7 +32,7 @@
     <string name="wizard_review_title">Review</string>
     <string name="wizard_review_item_name">Name: </string>
     <string name="wizard_review_item_duration">Duration: </string>
-    <string name="wizard_review_item_mins"> mins</string>
+    <string name="wizard_review_item_mins">&#160;min</string>
     <string name="wizard_review_item_night_mode">Night Mode</string>
     <string name="wizard_review_item_none">None</string>
     <string name="wizard_review_item_geo_locked">Geo Locked</string>
