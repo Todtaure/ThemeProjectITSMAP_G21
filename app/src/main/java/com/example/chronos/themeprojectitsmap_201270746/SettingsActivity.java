@@ -127,7 +127,7 @@ public class SettingsActivity extends PreferenceActivity {
                 editor.putString("nightPrefA_Key", nightMode.split(",")[0]);
                 editor.putString("nightPrefB_Key", nightMode.split(",")[1]);
             }
-            editor.commit();
+            editor.apply();
         }
         else
         {
