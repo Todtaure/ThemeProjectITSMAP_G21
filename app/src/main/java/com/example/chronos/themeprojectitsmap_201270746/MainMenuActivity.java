@@ -110,7 +110,6 @@ public class MainMenuActivity extends Activity {
         });
 
 
-
         activityList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
@@ -270,7 +269,7 @@ public class MainMenuActivity extends Activity {
     public void onDestroy()
     {
         super.onDestroy();
-        //TODO: Det skal væk når appen er done!
+        //TODO: Det skal vï¿½k nï¿½r appen er done!
         stopService(new Intent(this,ReminderService.class));
     }
 }
