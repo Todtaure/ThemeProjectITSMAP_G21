@@ -138,23 +138,7 @@ public class MainMenuActivity extends Activity {
     {
         super.onResume();
 
-
-        //ActivityModel mainActivityModel = new ActivityModel();
         dataSource.open();
-//        ActivityModel testActivity = new ActivityModel();
-//
-//        testActivity.setName("Test Aktivitet");
-//        testActivity.setMinTimeInterval(30);
-//        testActivity.setMaxReminders(3);
-//
-//        boolean success = dataSource.insertActivity(testActivity);
-//
-//        if (!success)
-//        {
-//            Log.d(Constants.Messages.ERR_DB_INSERT, "No Success!");
-//            dataSource.close();
-//            return;
-//        }
 
         activities = new ArrayList<>();
         activities = dataSource.getAllActivities();
@@ -214,33 +198,33 @@ public class MainMenuActivity extends Activity {
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
-        p = new Point();
-        p.x = 0;
-        p.y = 0;
+
     }
 
     // The method that displays the popup.
     private void showPopup(final Activity context, Point p) {
-        // Inflate the popup_layout.xml
+        // Inflating the popup_layout_main_snooze
         RelativeLayout viewGroup = (RelativeLayout) context.findViewById(R.id.popup);
         LayoutInflater layoutInflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View layout = layoutInflater.inflate(R.layout.popup_layout_main_snooze, viewGroup);
 
-        // Creating the PopupWindow
+        // Creating PopupWindow
         final PopupWindow popup = new PopupWindow(layout, ActionBar.LayoutParams.FILL_PARENT, ActionBar.LayoutParams.FILL_PARENT,true);
         popup.setContentView(layout);
         popup.setFocusable(true);
         popup.setBackgroundDrawable(new ColorDrawable(Color.BLUE));
 
-        // Displaying the popup at the specified location, + offsets.
+        // Displaying popup at specified location
         popup.showAtLocation(layout, 0, 10, 0);
 
+        // Gets reference to timepicker
         tp = (TimePicker)layout.findViewById(R.id.timePicker);
         tp.setIs24HourView(true);
 
-        // Getting a reference to Close button, and close the popup when clicked.
+        // Getting reference to close button
         Button close = (Button) layout.findViewById(R.id.close);
+        // Creates click event and dismiss popup if clicked on close
         close.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -248,9 +232,10 @@ public class MainMenuActivity extends Activity {
             }
         });
 
+        // Gets reference to save button
         Button saveBtn = (Button) layout.findViewById(R.id.saveBtn);
+        // Creates click event, save timeinterval and closes popup when clicking save
         saveBtn.setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
                 snoozeHour = tp.getCurrentHour();
