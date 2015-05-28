@@ -256,11 +256,7 @@ public class MainMenuActivity extends Activity {
                 snoozeIntent.putExtra(Constants.BroadcastParams.SNOOZE_INTERVAL, snoozeInterval);
                 sendBroadcast(snoozeIntent);
 
-                TextView textViewMinute = (TextView)layout.findViewById(R.id.textViewMinute);
-                textViewMinute.setText(snoozeMinute.toString());
-
-                TextView textViewHour = (TextView)layout.findViewById(R.id.textViewHour);
-                textViewHour.setText(snoozeHour.toString());
+                popup.dismiss();
             }
         });
     }
