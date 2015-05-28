@@ -52,16 +52,6 @@ public class ActivityListAdapter extends ArrayAdapter
         }
 
         CheckBox listItemCheckbox = (CheckBox)mView.findViewById(R.id.listItemCheckbox);
-
-        if(selected_position == position)
-        {
-            listItemCheckbox.setChecked(true);
-        }
-        else
-        {
-            listItemCheckbox.setChecked(false);
-        }
-
         TextView text = (TextView) mView.findViewById(R.id.textView);
 
         if(items.get(position) != null )
@@ -72,6 +62,15 @@ public class ActivityListAdapter extends ArrayAdapter
 
             int id = Resources.getSystem().getIdentifier("btn_check_holo_light", "drawable", "android");
             listItemCheckbox.setButtonDrawable(id);
+        }
+
+        if(selected_position == position)
+        {
+            listItemCheckbox.setChecked(true);
+        }
+        else
+        {
+            listItemCheckbox.setChecked(false);
         }
 
         listItemCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
