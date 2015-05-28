@@ -88,10 +88,8 @@ public class MainMenuActivity extends Activity {
         btn_show.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
-
-                //Open popup window
-                if (p != null)
-                    showPopup(MainMenuActivity.this, p);
+                //Opens popup window
+                showPopup(MainMenuActivity.this);
             }
         });
 
@@ -118,6 +116,9 @@ public class MainMenuActivity extends Activity {
                     editor.putBoolean(Constants.Service.SERVICE_RUNNING, true);
                     editor.commit();
                 } else {
+                    CheckBox checkBox = (CheckBox)findViewById(R.id.listItemCheckbox);
+
+                    checkBox.setChecked(false);
                     offSwitch.setText("Off");
                     onAppOffBtn();
                 }
@@ -138,12 +139,12 @@ public class MainMenuActivity extends Activity {
     {
         super.onResume();
 
+        // Opens dataSource and gets all activities, then closes dataSource
         dataSource.open();
-
         activities = new ArrayList<>();
         activities = dataSource.getAllActivities();
-
         dataSource.close();
+
         listItemId = -1;
         setActivityList();
     }
@@ -152,7 +153,7 @@ public class MainMenuActivity extends Activity {
     {
         activityAdapter = new ActivityListAdapter(getApplicationContext(), R.layout.activity_list, activities);
 
-        // Here, you set the data in your ListView
+        // Set adapter with activityAdapter
         activityList.setAdapter(activityAdapter);
     }
 
@@ -179,12 +180,14 @@ public class MainMenuActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
+    // Starts wizardActivity
     public void addActivityBtn(View view)
     {
         Intent wizardIntent = new Intent(this, WizardActivity.class);
         startActivity(wizardIntent);
     }
 
+    // Starts settingsActivity if a list item is selected
     public void editBtn(View view)
     {
         if(listItemId == -1)
@@ -196,35 +199,25 @@ public class MainMenuActivity extends Activity {
         startActivity(intent);
     }
 
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-
-    }
-
-    // The method that displays the popup.
-    private void showPopup(final Activity context, Point p) {
-        // Inflating the popup_layout_main_snooze
+    private void showPopup(final Activity context) {
+        // Inflate popup_layout_main_snooze
         RelativeLayout viewGroup = (RelativeLayout) context.findViewById(R.id.popup);
-        LayoutInflater layoutInflater = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View layout = layoutInflater.inflate(R.layout.popup_layout_main_snooze, viewGroup);
 
-        // Creating PopupWindow
+        // Creating the PopupWindow
         final PopupWindow popup = new PopupWindow(layout, ActionBar.LayoutParams.FILL_PARENT, ActionBar.LayoutParams.FILL_PARENT,true);
         popup.setContentView(layout);
         popup.setFocusable(true);
-        popup.setBackgroundDrawable(new ColorDrawable(Color.BLUE));
 
-        // Displaying popup at specified location
+        // Display popup
         popup.showAtLocation(layout, 0, 10, 0);
 
-        // Gets reference to timepicker
         tp = (TimePicker)layout.findViewById(R.id.timePicker);
         tp.setIs24HourView(true);
 
-        // Getting reference to close button
+        // Gets a reference to the close button and closes view when clicked
         Button close = (Button) layout.findViewById(R.id.close);
-        // Creates click event and dismiss popup if clicked on close
         close.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -232,10 +225,10 @@ public class MainMenuActivity extends Activity {
             }
         });
 
-        // Gets reference to save button
+        // Gets a reference to the save button, saves time interval and closes view when clicked
         Button saveBtn = (Button) layout.findViewById(R.id.saveBtn);
-        // Creates click event, save timeinterval and closes popup when clicking save
         saveBtn.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View v) {
                 snoozeHour = tp.getCurrentHour();
