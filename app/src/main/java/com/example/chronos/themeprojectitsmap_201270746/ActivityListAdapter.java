@@ -1,5 +1,6 @@
 package com.example.chronos.themeprojectitsmap_201270746;
 
+import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -21,6 +22,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.CheckedTextView;
 import android.widget.CompoundButton;
@@ -37,20 +39,22 @@ import java.util.List;
 
 public class ActivityListAdapter extends ArrayAdapter
 {
+    private ServiceInterface listener;
     private Context mContext;
     private int id;
     private List<ActivityModel> items;
     private int selected_position = -1;
 
-    public ActivityListAdapter(Context context, int textViewResourceId , List<ActivityModel> list )
+    public ActivityListAdapter(Context context, int textViewResourceId , List<ActivityModel> list, ServiceInterface listener )
     {
         super(context, textViewResourceId, list);
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         selected_position = sharedPreferences.getInt("checkedId", -1);
 
-        mContext = context;
+        this.mContext = context;
         id = textViewResourceId;
         items = list;
+        this.listener = listener;
     }
 
 
@@ -97,8 +101,7 @@ public class ActivityListAdapter extends ArrayAdapter
 
                     SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
 
-//                            ((MainMenuActivity) mContext).sendToService(items.get(position).getId(), Constants.Service.ACTIVITY_STATE_CHANGE);
-
+                    listener.sendToService(items.get(position).getId(), Constants.Service.ACTIVITY_STATE_CHANGE);
 
 
                     SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -106,7 +109,7 @@ public class ActivityListAdapter extends ArrayAdapter
                     editor.commit();
 
                 } else {
-                       // ((MainMenuActivity) mContext).sendToService(items.get(position).getId(), Constants.Service.SERVICE_STOP);
+                    listener.sendToService(items.get(position).getId(), Constants.Service.SERVICE_STOP);
 
                     SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
                     SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -117,7 +120,6 @@ public class ActivityListAdapter extends ArrayAdapter
                 notifyDataSetChanged();
             }
         });
-
 
         return mView;
     }
