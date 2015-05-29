@@ -88,7 +88,7 @@ public class MainMenuActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
         Button btn_show = (Button) findViewById(R.id.snoozeButton);
-        activityList = (ListView)findViewById(R.id.activityList);
+        activityList = (ListView) findViewById(R.id.activityList);
 
         bindService(new Intent(this, ReminderService.class), mConn, Context.BIND_AUTO_CREATE);
 
@@ -119,8 +119,7 @@ public class MainMenuActivity extends Activity {
 
                 if (isOn && listItemId >= 0) {
                     offSwitch.setText("On");
-                    if(serviceRunning)
-                    {
+                    if (serviceRunning) {
                         return;
                     }
                     sendToService(listItemId, Constants.Service.ACTIVITY_STATE_CHANGE);
@@ -128,7 +127,7 @@ public class MainMenuActivity extends Activity {
                     editor.putBoolean(Constants.Service.SERVICE_RUNNING, true);
                     editor.apply();
                 } else {
-                    CheckBox checkBox = (CheckBox)findViewById(R.id.listItemCheckbox);
+                    CheckBox checkBox = (CheckBox) findViewById(R.id.listItemCheckbox);
                     checkBox.setChecked(false);
                     offSwitch.setText("Off");
 
@@ -146,6 +145,20 @@ public class MainMenuActivity extends Activity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 listItemId = activities.get(position).getId();
+            }
+        });
+
+        CheckBox listItemCheckbox = (CheckBox) findViewById(R.id.listItemCheckbox);
+
+        listItemCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    sendToService(listItemId, Constants.Service.ACTIVITY_STATE_CHANGE);
+
+                } else {
+                    sendToService(listItemId, Constants.Service.SERVICE_STOP);
+                }
             }
         });
     }
