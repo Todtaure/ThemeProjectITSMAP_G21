@@ -71,7 +71,7 @@ import java.util.Date;
 import java.util.List;
 
 
-public class MainMenuActivity extends Activity {
+public class MainMenuActivity extends Activity implements ServiceInterface {
     private TimePicker tp;
     private Switch offSwitch;
     private Integer snoozeHour;
@@ -150,17 +150,17 @@ public class MainMenuActivity extends Activity {
 
         CheckBox listItemCheckbox = (CheckBox) findViewById(R.id.listItemCheckbox);
 
-//        listItemCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//                if (isChecked) {
-//                    sendToService(listItemId, Constants.Service.ACTIVITY_STATE_CHANGE);
-//
-//                } else {
-//                    sendToService(listItemId, Constants.Service.SERVICE_STOP);
-//                }
-//            }
-//        });
+        listItemCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    sendToService(listItemId, Constants.Service.ACTIVITY_STATE_CHANGE);
+
+                } else {
+                    sendToService(listItemId, Constants.Service.SERVICE_STOP);
+                }
+            }
+        });
     }
 
     @Override
@@ -182,11 +182,27 @@ public class MainMenuActivity extends Activity {
         sharedPreferences.getBoolean(Constants.Service.SERVICE_RUNNING, false);
 
         setActivityList();
+
+//        CheckBox listItemCheckbox = (CheckBox) findViewById(R.id.listItemCheckbox);
+//
+//        listItemCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                if (isChecked) {
+//                    sendToService(listItemId, Constants.Service.ACTIVITY_STATE_CHANGE);
+//
+//                } else {
+//                    sendToService(listItemId, Constants.Service.SERVICE_STOP);
+//                }
+//            }
+//        });
     }
+
 
     public void setActivityList()
     {
-        activityAdapter = new ActivityListAdapter(getApplicationContext(), R.layout.activity_list, activities);
+
+        activityAdapter = new ActivityListAdapter(getApplicationContext(), R.layout.activity_list, activities, this );
 
         // Set adapter with activityAdapter
         activityList.setAdapter(activityAdapter);
