@@ -96,21 +96,18 @@ public class ActivityListAdapter extends ArrayAdapter
                     selected_position = position;
 
                     SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-                    if(!sharedPreferences.getBoolean(Constants.Service.SERVICE_RUNNING, false))
-                    {
-                        if(mContext instanceof MainMenuActivity) {
-                            ((MainMenuActivity) mContext).sendToService(items.get(position).getId(), Constants.Service.ACTIVITY_STATE_CHANGE);
-                        }
-                    }
+
+//                            ((MainMenuActivity) mContext).sendToService(items.get(position).getId(), Constants.Service.ACTIVITY_STATE_CHANGE);
+
+
 
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putInt("checkedId", position);
                     editor.commit();
 
                 } else {
-                    if(mContext instanceof MainMenuActivity) {
-                        ((MainMenuActivity) mContext).sendToService(items.get(position).getId(), Constants.Service.SERVICE_STOP);
-                    }
+                       // ((MainMenuActivity) mContext).sendToService(items.get(position).getId(), Constants.Service.SERVICE_STOP);
+
                     SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.remove("checkedId");

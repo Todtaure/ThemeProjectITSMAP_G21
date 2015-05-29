@@ -271,7 +271,7 @@ public class MainMenuActivity extends Activity {
     }
 
     public void onAppOffBtn() {
-        sendToService(listItemId, Constants.Service.SERVICE_STOP);
+        stopService(new Intent(this, ReminderService.class));
     }
 
     @Override

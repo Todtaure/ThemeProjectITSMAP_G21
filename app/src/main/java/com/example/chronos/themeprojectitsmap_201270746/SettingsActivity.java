@@ -29,6 +29,7 @@ import android.widget.Toast;
 
 import com.example.chronos.themeprojectitsmap_201270746.Database.ActivityDataSource;
 import com.example.chronos.themeprojectitsmap_201270746.Database.Models.ActivityModel;
+import com.example.chronos.themeprojectitsmap_201270746.Service.ReminderService;
 import com.example.chronos.themeprojectitsmap_201270746.Utilities.Constants;
 
 import java.sql.SQLException;
@@ -79,7 +80,7 @@ public class SettingsActivity extends PreferenceActivity {
             return;
         }
         // In the simplified UI, fragments are not used at all and we instead
-        bindService(new Intent(getString(R.string.service_filter_name)), mConn, Context.BIND_AUTO_CREATE);
+        bindService(new Intent(this, ReminderService.class), mConn, Context.BIND_AUTO_CREATE);
 
         addPreferencesFromResource(R.xml.pref_name);
 
@@ -201,41 +202,44 @@ public class SettingsActivity extends PreferenceActivity {
     }
 
     @Override
-    protected void onStop()
-    {
+    public void onResume() {
+        super.onResume();
+
+        if (!mServiceConnected) {
+            bindService(new Intent(this, ReminderService.class), mConn, Context.BIND_AUTO_CREATE);
+        }
+    }
+
+    @Override
+    protected void onStop() {
         super.onStop();
         Log.d(Constants.Debug.LOG_TAG, "SettingsActivity.onStop");
 
-        if(activityId == -1)
-        {
+        if (activityId == -1) {
             return;
         }
 
         dataSource.open();
         ActivityModel activity = dataSource.getActivityById(activityId);
 
-        if(activity == null)
-        {
+        if (activity == null) {
             return;
         }
 
-        Preference preference = (Preference)findPreference(getString(R.string.pref_key_activity_name));
+        Preference preference = (Preference) findPreference(getString(R.string.pref_key_activity_name));
         activity.setName(preference.getSummary().toString());
 
-        preference = (Preference)findPreference(getString(R.string.pref_key_activity_duration));
+        preference = (Preference) findPreference(getString(R.string.pref_key_activity_duration));
 
         try {
             activity.setMinTimeInterval(Integer.parseInt(preference.getSummary().toString()));
-        }
-        catch(NumberFormatException ex)
-        {
+        } catch (NumberFormatException ex) {
             activity.setMinTimeInterval(60);
         }
-        preference = (Preference)findPreference(getString(R.string.pref_key_night_from));
-        if(preference.getSummary() != null || !preference.getSummary().equals(""))
-        {
+        preference = (Preference) findPreference(getString(R.string.pref_key_night_from));
+        if (preference.getSummary() != null || !preference.getSummary().equals("")) {
             String nightMode = preference.getSummary().toString();
-            preference = (Preference)findPreference(getString(R.string.pref_key_night_to));
+            preference = (Preference) findPreference(getString(R.string.pref_key_night_to));
             nightMode += "," + preference.getSummary().toString();
             activity.setNightMode(nightMode);
         }
@@ -252,14 +256,6 @@ public class SettingsActivity extends PreferenceActivity {
             unbindService(mConn);
             mServiceConnected = false;
         }
-    }
-
-    private void sendBroadcastToService(Constants.BroadcastMethods type)
-    {
-        Intent intent = new Intent(Constants.Service.SERVICE_BROADCAST);
-        intent.putExtra(Constants.BroadcastParams.BROADCAST_METHOD, type.ordinal());
-        intent.putExtra(Constants.ACTIVITY_ID, activityId);
-        sendBroadcast(intent);
     }
 
     /**
@@ -406,17 +402,6 @@ public class SettingsActivity extends PreferenceActivity {
         }
     }
 
-    @Override
-    public void onPause()
-    {
-        super.onPause();
-        if (mServiceConnected) {
-
-            unbindService(mConn);
-            mServiceConnected = false;
-        }
-    }
-
     /**
      * Sends message with text stored in bundle extra data ("data" key).
      */
@@ -435,11 +420,12 @@ public class SettingsActivity extends PreferenceActivity {
                 // We always have to trap RemoteException
                 // (DeadObjectException
                 // is thrown if the target Handler no longer exists)
+                Log.d(Constants.Debug.LOG_TAG, "Settings Cannot send - RemoteException");
 
                 e.printStackTrace();
             }
         } else {
-            Log.d(Constants.Debug.LOG_TAG, "Cannot send - not connected to service.");
+            Log.d(Constants.Debug.LOG_TAG, "Settings Cannot send - not connected to service.");
         }
 
     }
@@ -454,7 +440,7 @@ public class SettingsActivity extends PreferenceActivity {
     private ServiceConnection mConn = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
-            Log.d(Constants.Debug.LOG_TAG, "Connected to service.");
+            Log.d(Constants.Debug.LOG_TAG, "Settings Connected to service.");
 
             mService = new Messenger(service);
             mServiceConnected = true;
@@ -465,8 +451,7 @@ public class SettingsActivity extends PreferenceActivity {
          */
         @Override
         public void onServiceDisconnected(ComponentName className) {
-
-            Log.d(Constants.Debug.LOG_TAG, "Disconnected from service.");
+            Log.d(Constants.Debug.LOG_TAG, "Settings Disconnected from service.");
             mService = null;
             mServiceConnected = false;
         }
