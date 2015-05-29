@@ -1,5 +1,5 @@
 package com.example.chronos.themeprojectitsmap_201270746.Wizard;
-
+// Design inspiration fra https://plus.google.com/+RomanNurik/posts/6cVymZvn3f4
 import android.graphics.Color;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -21,6 +21,7 @@ import com.example.chronos.themeprojectitsmap_201270746.Database.Models.OffInter
 import com.example.chronos.themeprojectitsmap_201270746.MainMenuActivity;
 import com.example.chronos.themeprojectitsmap_201270746.R;
 import com.example.chronos.themeprojectitsmap_201270746.Service.CalendarInfo;
+import com.example.chronos.themeprojectitsmap_201270746.Utilities.Constants;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -28,6 +29,8 @@ import java.util.Calendar;
 import java.util.List;
 
 public class WizardActivity extends ActionBarActivity {
+
+
 
     // The pager widget, which handles animation and allows swiping horizontally to access previous
     // and next wizard steps.
@@ -50,7 +53,7 @@ public class WizardActivity extends ActionBarActivity {
     private boolean isLastPage = false;
 
     public WizardData activityObject;
-    ActivityDataSource activityDataSource;
+    private ActivityDataSource activityDataSource;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,8 +69,7 @@ public class WizardActivity extends ActionBarActivity {
             activityDataSource = new ActivityDataSource(this);
         }
         catch ( SQLException e){
-            Toast.makeText(getBaseContext(), "Failed to create sql instance",
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(getBaseContext(), Constants.Messages.ERR_DB_CONNECTION, Toast.LENGTH_LONG).show();
         }
 
 

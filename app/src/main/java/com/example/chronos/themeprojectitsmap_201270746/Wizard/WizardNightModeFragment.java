@@ -24,10 +24,10 @@ public class WizardNightModeFragment extends Fragment implements View.OnClickLis
 
     private WizardActivity parentActivity;
 
-    EditText editTextNightModeFromTime;
-    EditText editTextNightModeToTime;
+    private EditText editTextNightModeFromTime;
+    private EditText editTextNightModeToTime;
 
-    InputMethodManager imm;
+    private InputMethodManager imm;
 
     public WizardNightModeFragment() {
         // Required empty public constructor
@@ -142,12 +142,14 @@ public class WizardNightModeFragment extends Fragment implements View.OnClickLis
         }
     }
 
+    // har fundet denne metode til at disable automatisk keyboard via foelgende link
+    // http://stackoverflow.com/questions/10636635/disable-keyboard-on-edittext
     private void disableKeyboardPopup(EditText editText) {
         editText.setOnTouchListener(new View.OnTouchListener() {
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                v.onTouchEvent(event);   // handle the event first
+                v.onTouchEvent(event);
                 if (imm != null) {
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);  // hide the soft keyboard
                 }

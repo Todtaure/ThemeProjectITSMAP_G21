@@ -1,14 +1,22 @@
 package com.example.chronos.themeprojectitsmap_201270746;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -89,9 +97,7 @@ public class ActivityListAdapter extends ArrayAdapter
                     SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
                     if(!sharedPreferences.getBoolean(Constants.Service.SERVICE_RUNNING, false))
                     {
-                        Intent intent = new Intent(getContext(), ReminderService.class);
-                        intent.putExtra(Constants.ACTIVITY_ID, items.get(position).getId());
-                        getContext().startService(intent);
+                        //TODO send new activity id to service
                     }
 
                     SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -99,9 +105,7 @@ public class ActivityListAdapter extends ArrayAdapter
                     editor.commit();
 
                 } else {
-                    Intent stopIntent = new Intent(Constants.Service.SERVICE_BROADCAST);
-                    stopIntent.putExtra(Constants.BroadcastParams.BROADCAST_METHOD, Constants.BroadcastMethods.SERVICE_STOP.ordinal());
-                    getContext().sendBroadcast(stopIntent);
+                    //TODO send service stop
 
                     SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
                     SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -115,6 +119,5 @@ public class ActivityListAdapter extends ArrayAdapter
 
 
         return mView;
-
     }
 }

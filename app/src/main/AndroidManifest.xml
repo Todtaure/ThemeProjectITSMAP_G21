@@ -26,8 +26,12 @@
 
         <service
             android:name=".Service.ReminderService"
-            android:process=":remote"
-            />
+            android:exported="true"
+            android:process=":remote">
+            <intent-filter>
+                <action android:name="@string/service_filter_name" />
+            </intent-filter>
+        </service>
 
         <activity
             android:name=".Wizard.WizardActivity"

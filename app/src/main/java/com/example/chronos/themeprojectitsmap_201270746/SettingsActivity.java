@@ -2,13 +2,19 @@ package com.example.chronos.themeprojectitsmap_201270746;
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.preference.DialogPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -73,6 +79,7 @@ public class SettingsActivity extends PreferenceActivity {
             return;
         }
         // In the simplified UI, fragments are not used at all and we instead
+        bindService(new Intent(getString(R.string.service_filter_name)), mConn, Context.BIND_AUTO_CREATE);
 
         addPreferencesFromResource(R.xml.pref_name);
 
@@ -179,7 +186,7 @@ public class SettingsActivity extends PreferenceActivity {
                                         deleteSource.open();
                                         deleteSource.deleteActivityById(activityId);
                                         deleteSource.close();
-                                        sendBroadcastToService(Constants.BroadcastMethods.ACTIVITY_UPDATED);
+                                        sendToService(activityId, Constants.Service.ACTIVITY_UPDATED);
                                         activityId = -1;
                                         finish();
                                     }
@@ -238,7 +245,13 @@ public class SettingsActivity extends PreferenceActivity {
         dataSource.updateActivity(activity);
         dataSource.close();
 
-        sendBroadcastToService(Constants.BroadcastMethods.ACTIVITY_UPDATED);
+        sendToService(activityId, Constants.Service.ACTIVITY_UPDATED);
+
+        if (mServiceConnected) {
+
+            unbindService(mConn);
+            mServiceConnected = false;
+        }
     }
 
     private void sendBroadcastToService(Constants.BroadcastMethods type)
@@ -392,4 +405,70 @@ public class SettingsActivity extends PreferenceActivity {
             addPreferencesFromResource(R.xml.pref_dnd);
         }
     }
+
+    @Override
+    public void onPause()
+    {
+        super.onPause();
+        if (mServiceConnected) {
+
+            unbindService(mConn);
+            mServiceConnected = false;
+        }
+    }
+
+    /**
+     * Sends message with text stored in bundle extra data ("data" key).
+     */
+
+    public void sendToService(long activityId, int messageType) {
+        if (mServiceConnected) {
+            Message msg = Message.obtain(null, messageType);
+
+            Bundle b = new Bundle();
+            b.putLong(Constants.ACTIVITY_ID, activityId);
+            msg.setData(b);
+
+            try {
+                mService.send(msg);
+            } catch (RemoteException e) {
+                // We always have to trap RemoteException
+                // (DeadObjectException
+                // is thrown if the target Handler no longer exists)
+
+                e.printStackTrace();
+            }
+        } else {
+            Log.d(Constants.Debug.LOG_TAG, "Cannot send - not connected to service.");
+        }
+
+    }
+
+
+    Messenger mService = null;
+    boolean mServiceConnected = false;
+
+    /**
+     * Class for interacting with the main interface of the service.
+     */
+    private ServiceConnection mConn = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            Log.d(Constants.Debug.LOG_TAG, "Connected to service.");
+
+            mService = new Messenger(service);
+            mServiceConnected = true;
+        }
+
+        /**
+         * Connection dropped.
+         */
+        @Override
+        public void onServiceDisconnected(ComponentName className) {
+
+            Log.d(Constants.Debug.LOG_TAG, "Disconnected from service.");
+            mService = null;
+            mServiceConnected = false;
+        }
+    };
 }
