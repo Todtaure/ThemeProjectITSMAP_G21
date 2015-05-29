@@ -1,5 +1,16 @@
 package com.example.chronos.themeprojectitsmap_201270746;
 
+/* When developing the part with the popup following references has been used:
+https://androidresearch.wordpress.com/2012/05/06/how-to-create-popups-in-android/
+http://stackoverflow.com/questions/7498605/how-to-create-a-popup-window-in-android
+http://mrbool.com/how-to-implement-popup-window-in-android/28285
+http://developer.android.com/reference/android/widget/PopupWindow.html
+*/
+
+/* Icons throughout the app have been found on:
+http://materialdesignicons.com/
+*/
+
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.ComponentName;
@@ -61,8 +72,6 @@ import java.util.List;
 
 
 public class MainMenuActivity extends Activity {
-
-    Point p;
     private TimePicker tp;
     private Switch offSwitch;
     private Integer snoozeHour;
@@ -329,5 +338,3 @@ public class MainMenuActivity extends Activity {
         }
     };
 }
-
-
