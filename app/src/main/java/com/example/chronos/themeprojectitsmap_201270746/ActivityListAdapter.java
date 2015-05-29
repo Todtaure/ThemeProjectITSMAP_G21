@@ -64,8 +64,9 @@ public class ActivityListAdapter extends ArrayAdapter
             mView = vi.inflate(id, null);
         }
 
-        CheckBox listItemCheckbox = (CheckBox)mView.findViewById(R.id.listItemCheckbox);
         TextView text = (TextView) mView.findViewById(R.id.textView);
+        CheckBox listItemCheckbox = (CheckBox)mView.findViewById(R.id.listItemCheckbox);
+
 
         if(items.get(position) != null )
         {

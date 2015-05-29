@@ -114,6 +114,9 @@ public class MainMenuActivity extends Activity {
         offSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isOn) {
+                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+
                 if (isOn && listItemId >= 0) {
                     offSwitch.setText("On");
                     if(serviceRunning)
@@ -122,18 +125,20 @@ public class MainMenuActivity extends Activity {
                     }
                     sendToService(listItemId, Constants.Service.ACTIVITY_STATE_CHANGE);
 
-                    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putBoolean(Constants.Service.SERVICE_RUNNING, true);
-                    editor.commit();
+                    editor.apply();
                 } else {
                     CheckBox checkBox = (CheckBox)findViewById(R.id.listItemCheckbox);
-
                     checkBox.setChecked(false);
                     offSwitch.setText("Off");
+
+                    editor.putBoolean(Constants.Service.SERVICE_RUNNING, false);
+                    editor.apply();
+
                     onAppOffBtn();
                 }
             }
+
         });
 
         activityList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -159,6 +164,10 @@ public class MainMenuActivity extends Activity {
         dataSource.close();
 
         listItemId = -1;
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        sharedPreferences.getBoolean(Constants.Service.SERVICE_RUNNING, false);
+
         setActivityList();
     }
 
