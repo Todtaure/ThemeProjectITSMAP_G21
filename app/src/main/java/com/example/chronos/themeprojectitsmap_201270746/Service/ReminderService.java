@@ -81,22 +81,22 @@ public class ReminderService extends Service {
             Bundle b = msg.getData();
             Log.d(Constants.Debug.LOG_TAG, "ReminderService.IncomingHandler");
             switch (msg.what) {
-//                case Constants.Service.SNOOZE_APP:
-//                    if (b != null) {
-//                        setAlarm(b.getInt(Constants.BroadcastParams.SNOOZE_INTERVAL), Constants.BroadcastMethods.ALARM_WAKEUP);
-//                        serviceSnoozed = true;
-//                    }
-//                    break;
-//                case Constants.Service.ACTIVITY_UPDATED:
-//                    if (b != null) {
-//                        isThisActivityChanged(b.getInt(Constants.ACTIVITY_ID, -1));
-//                    }
-//                    break;
-//                case Constants.Service.ACTIVITY_STATE_CHANGE:
-//                {
-//                    setNewActivity(b.getInt(Constants.ACTIVITY_ID, -1));
-//                    break;
-//                }
+                case Constants.Service.SNOOZE_APP:
+                    if (b != null) {
+                        setAlarm(b.getInt(Constants.BroadcastParams.SNOOZE_INTERVAL), Constants.BroadcastMethods.ALARM_WAKEUP);
+                        serviceSnoozed = true;
+                    }
+                    break;
+                case Constants.Service.ACTIVITY_UPDATED:
+                    if (b != null) {
+                        isThisActivityChanged(b.getInt(Constants.ACTIVITY_ID, -1));
+                    }
+                    break;
+                case Constants.Service.ACTIVITY_STATE_CHANGE:
+                {
+                    setNewActivity(b.getInt(Constants.ACTIVITY_ID, -1));
+                    break;
+                }
                 case Constants.Service.SERVICE_STOP:
                 {
                     stopSelf();
