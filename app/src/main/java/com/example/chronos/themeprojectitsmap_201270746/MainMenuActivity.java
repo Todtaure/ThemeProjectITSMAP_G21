@@ -150,17 +150,17 @@ public class MainMenuActivity extends Activity {
 
         CheckBox listItemCheckbox = (CheckBox) findViewById(R.id.listItemCheckbox);
 
-        listItemCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    sendToService(listItemId, Constants.Service.ACTIVITY_STATE_CHANGE);
-
-                } else {
-                    sendToService(listItemId, Constants.Service.SERVICE_STOP);
-                }
-            }
-        });
+//        listItemCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                if (isChecked) {
+//                    sendToService(listItemId, Constants.Service.ACTIVITY_STATE_CHANGE);
+//
+//                } else {
+//                    sendToService(listItemId, Constants.Service.SERVICE_STOP);
+//                }
+//            }
+//        });
     }
 
     @Override
@@ -276,8 +276,8 @@ public class MainMenuActivity extends Activity {
 
                 int snoozeInterval = (snoozeHour*60 + snoozeMinute) - (timeSinceMidnight/1000)/60;
 
-                sendToService(listItemId, Constants.Service.SNOOZE_APP, snoozeInterval);
-
+                //sendToService(listItemId, Constants.Service.SNOOZE_APP, snoozeInterval);
+                sendToService(listItemId, Constants.Service.ACTIVITY_STATE_CHANGE);
                 popup.dismiss();
             }
         });
@@ -294,7 +294,7 @@ public class MainMenuActivity extends Activity {
 
         if (mServiceConnected) {
 
-            unbindService(mConn);
+//            unbindService(mConn);
             mServiceConnected = false;
         }
     }

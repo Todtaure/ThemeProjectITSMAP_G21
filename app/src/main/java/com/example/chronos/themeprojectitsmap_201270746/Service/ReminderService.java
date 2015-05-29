@@ -67,8 +67,7 @@ public class ReminderService extends Service {
     }
 
     @Override
-    public boolean onUnbind(Intent intent)
-    {
+    public boolean onUnbind(Intent intent) {
         super.onUnbind(intent);
         return true;
     }
@@ -89,12 +88,12 @@ public class ReminderService extends Service {
                     break;
                 case Constants.Service.ACTIVITY_UPDATED:
                     if (b != null) {
-                        isThisActivityChanged(b.getInt(Constants.ACTIVITY_ID, -1));
+                        isThisActivityChanged(b.getLong(Constants.ACTIVITY_ID, -1));
                     }
                     break;
                 case Constants.Service.ACTIVITY_STATE_CHANGE:
                 {
-                    setNewActivity(b.getInt(Constants.ACTIVITY_ID, -1));
+                    setNewActivity(b.getLong(Constants.ACTIVITY_ID, -1));
                     break;
                 }
                 case Constants.Service.SERVICE_STOP:
@@ -118,18 +117,19 @@ public class ReminderService extends Service {
         }
         catch(SQLException ex)
         {
-            Toast.makeText(getBaseContext(), Constants.Messages.ERR_DB_CONNECTION, Toast.LENGTH_LONG).show();
+            Log.e(Constants.Debug.LOG_TAG,Constants.Messages.ERR_DB_CONNECTION);
         }
         alarmManager = (AlarmManager)getSystemService(Activity.ALARM_SERVICE);
         calendarInfo = new CalendarInfo();
         registerReceiver(ServiceReceiver, new IntentFilter(Constants.Service.SERVICE_BROADCAST));
-        setResetTimer();
-
+        //setResetTimer();
+        resetAllActivityCounters();
         HandlerThread thread = new HandlerThread("ServiceStartArguments",Process.THREAD_PRIORITY_BACKGROUND);
         thread.start();
 
         mServiceLooper = thread.getLooper();
         mServiceHandler = new ServiceHandler(mServiceLooper);
+        Log.d(Constants.Debug.LOG_TAG, "ReminderService.onCreate - done");
     }
 
     @Override
@@ -205,19 +205,17 @@ public class ReminderService extends Service {
         Intent intent =  new Intent(Constants.Service.SERVICE_BROADCAST);
         intent.putExtra(Constants.BroadcastParams.BROADCAST_METHOD, type.ordinal());
 
-        PendingIntent pintent = PendingIntent.getBroadcast(this, 0, intent, 0);
+        PendingIntent pintent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        alarmManager.setExact(AlarmManager.RTC_WAKEUP, minutes * 60 * 1000, pintent);
+        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + (minutes * 60 * 1000), pintent);
     }
 
     private BroadcastReceiver ServiceReceiver = new BroadcastReceiver()
     {
         @Override
         public void onReceive(Context context, Intent intent) {
-            long activityId = intent.getLongExtra(Constants.ACTIVITY_ID, -1);
-            Log.d(Constants.Debug.LOG_TAG, "ServiceBroadcastReceiver");
-            //TODO: change to different method, since expensive
             Constants.BroadcastMethods method = Constants.BroadcastMethods.values()[intent.getIntExtra(Constants.BroadcastParams.BROADCAST_METHOD, 0)];
+            Log.d(Constants.Debug.LOG_TAG, "ServiceBroadcastReceiver - " + method.toString());
 
             switch(method)
             {
@@ -281,6 +279,7 @@ public class ReminderService extends Service {
     };
 
     private void setNewActivity(long activityId) {
+        Log.d(Constants.Debug.LOG_TAG, "ReminderService.setNewActivity");
         dataSource.open();
         ActivityModel updatedActivity = dataSource.getActivityById(activityId);
         dataSource.close();
@@ -291,10 +290,14 @@ public class ReminderService extends Service {
         }
 
         currentActivity = updatedActivity;
+        currentActivity.setIsOff(false);
+        currentActivity.setIsSnooze(false);
         resetService();
     }
 
     private void isThisActivityChanged(long activityId) {
+        Log.d(Constants.Debug.LOG_TAG, "ReminderService.isThisActivityChanged - precheck");
+
         if(currentActivity == null)
         {
             return;
@@ -303,7 +306,7 @@ public class ReminderService extends Service {
         {
             return;
         }
-
+        Log.d(Constants.Debug.LOG_TAG, "ReminderService.isThisActivityChanged - starting");
         dataSource.open();
         ActivityModel updatedActivity = dataSource.getActivityById(activityId);
         dataSource.close();
@@ -318,8 +321,9 @@ public class ReminderService extends Service {
     }
 
     private void resetService() {
+        Log.d(Constants.Debug.LOG_TAG, "ReminderService.resetService");
         Intent updateServiceIntent = new Intent(Constants.Service.SERVICE_BROADCAST);
-        PendingIntent pendingUpdateIntent = PendingIntent.getService(this, 0, updateServiceIntent, 0);
+        PendingIntent pendingUpdateIntent = PendingIntent.getService(this, 1, updateServiceIntent, 0);
         alarmManager.cancel(pendingUpdateIntent);
 
         if(!checkCalendar())
@@ -329,6 +333,7 @@ public class ReminderService extends Service {
     }
 
     private void setActivityDone() {
+        Log.d(Constants.Debug.LOG_TAG, "ReminderService.setActivityDone");
         if(currentActivity == null)
         {
             return;
@@ -357,10 +362,14 @@ public class ReminderService extends Service {
     }
 
     private void notifyUser() {
+        Log.d(Constants.Debug.LOG_TAG, "ReminderService.notifyUser - precheck isnull");
+
         if(currentActivity == null)
         {
             return;
         }
+        Log.d(Constants.Debug.LOG_TAG, "ReminderService.notifyUser - precheck issleep");
+
         if(currentActivity.getIsSnooze() || currentActivity.getIsOff())
         {
             return;
@@ -370,11 +379,11 @@ public class ReminderService extends Service {
 
         Intent snoozeIntent = new Intent(Constants.Service.SERVICE_BROADCAST);
         snoozeIntent.putExtra(Constants.BroadcastParams.BROADCAST_METHOD, Constants.BroadcastMethods.ACTIVITY_SNOOZED.ordinal());
-        PendingIntent snoozePending = PendingIntent.getBroadcast(this, 1, snoozeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent snoozePending = PendingIntent.getBroadcast(this, 25, snoozeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Intent deleteIntent = new Intent(Constants.Service.SERVICE_BROADCAST);
         deleteIntent.putExtra(Constants.BroadcastParams.BROADCAST_METHOD, Constants.BroadcastMethods.ACTIVITY_DONE.ordinal());
-        PendingIntent deletePending = PendingIntent.getBroadcast(this, 0, deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent deletePending = PendingIntent.getBroadcast(this, 24, deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Notification n  = new Notification.Builder(this)
                 .setContentTitle("Activity Reminder")
@@ -396,6 +405,8 @@ public class ReminderService extends Service {
     }
 
     private void setResetTimer() {
+        Log.d(Constants.Debug.LOG_TAG, "ReminderService.setResetTimer");
+
         String[] ids = TimeZone.getAvailableIDs(1 * 60 * 60 * 1000);
         // create a Pacific Standard Time time zone
         SimpleTimeZone pdt = new SimpleTimeZone(1 * 60 * 60 * 1000, ids[0]);
