@@ -81,6 +81,8 @@ public class MainMenuActivity extends Activity {
         Button btn_show = (Button) findViewById(R.id.snoozeButton);
         activityList = (ListView)findViewById(R.id.activityList);
 
+        bindService(new Intent(this, ReminderService.class), mConn, Context.BIND_AUTO_CREATE);
+
         try {
             dataSource = new ActivityDataSource(getBaseContext());
         } catch (SQLException e) {
@@ -109,7 +111,6 @@ public class MainMenuActivity extends Activity {
                     {
                         return;
                     }
-                    bindService(new Intent(getString(R.string.service_filter_name)), mConn, Context.BIND_AUTO_CREATE);
                     sendToService(listItemId, Constants.Service.ACTIVITY_STATE_CHANGE);
 
                     SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
@@ -138,8 +139,10 @@ public class MainMenuActivity extends Activity {
     @Override
     public void onResume()
     {
-        super.onResume();
-
+        super.onPostResume();
+        if(!mServiceConnected) {
+            bindService(new Intent(this, ReminderService.class), mConn, Context.BIND_AUTO_CREATE);
+        }
         // Opens dataSource and gets all activities, then closes dataSource
         dataSource.open();
         activities = new ArrayList<>();
@@ -251,17 +254,6 @@ public class MainMenuActivity extends Activity {
 
     public void onAppOffBtn() {
         sendToService(listItemId, Constants.Service.SERVICE_STOP);
-    }
-
-    @Override
-    public void onPause()
-    {
-        super.onPause();
-        if (mServiceConnected) {
-
-            unbindService(mConn);
-            mServiceConnected = false;
-        }
     }
 
     @Override

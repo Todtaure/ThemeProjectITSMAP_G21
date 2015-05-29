@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.*;
 import android.os.Process;
+import android.provider.CalendarContract;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -65,29 +66,37 @@ public class ReminderService extends Service {
 
     }
 
+    @Override
+    public boolean onUnbind(Intent intent)
+    {
+        super.onUnbind(intent);
+        return true;
+    }
+
     Messenger mResponseMessenger = null;
 
-    class IncomingHandler extends Handler {
+    private class IncomingHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
             Bundle b = msg.getData();
+            Log.d(Constants.Debug.LOG_TAG, "ReminderService.IncomingHandler");
             switch (msg.what) {
-                case Constants.Service.SNOOZE_APP:
-                    if (b != null) {
-                        setAlarm(b.getInt(Constants.BroadcastParams.SNOOZE_INTERVAL), Constants.BroadcastMethods.ALARM_WAKEUP);
-                        serviceSnoozed = true;
-                    }
-                    break;
-                case Constants.Service.ACTIVITY_UPDATED:
-                    if (b != null) {
-                        isThisActivityChanged(b.getInt(Constants.ACTIVITY_ID, -1));
-                    }
-                    break;
-                case Constants.Service.ACTIVITY_STATE_CHANGE:
-                {
-                    setNewActivity(b.getInt(Constants.ACTIVITY_ID, -1));
-                    break;
-                }
+//                case Constants.Service.SNOOZE_APP:
+//                    if (b != null) {
+//                        setAlarm(b.getInt(Constants.BroadcastParams.SNOOZE_INTERVAL), Constants.BroadcastMethods.ALARM_WAKEUP);
+//                        serviceSnoozed = true;
+//                    }
+//                    break;
+//                case Constants.Service.ACTIVITY_UPDATED:
+//                    if (b != null) {
+//                        isThisActivityChanged(b.getInt(Constants.ACTIVITY_ID, -1));
+//                    }
+//                    break;
+//                case Constants.Service.ACTIVITY_STATE_CHANGE:
+//                {
+//                    setNewActivity(b.getInt(Constants.ACTIVITY_ID, -1));
+//                    break;
+//                }
                 case Constants.Service.SERVICE_STOP:
                 {
                     stopSelf();
@@ -113,9 +122,10 @@ public class ReminderService extends Service {
         }
         alarmManager = (AlarmManager)getSystemService(Activity.ALARM_SERVICE);
         calendarInfo = new CalendarInfo();
+        registerReceiver(ServiceReceiver, new IntentFilter(Constants.Service.SERVICE_BROADCAST));
+        setResetTimer();
 
-        HandlerThread thread = new HandlerThread("ServiceStartArguments",
-                Process.THREAD_PRIORITY_BACKGROUND);
+        HandlerThread thread = new HandlerThread("ServiceStartArguments",Process.THREAD_PRIORITY_BACKGROUND);
         thread.start();
 
         mServiceLooper = thread.getLooper();
@@ -131,7 +141,6 @@ public class ReminderService extends Service {
             return START_NOT_STICKY;
         }
 
-        registerReceiver(ServiceReceiver, new IntentFilter(Constants.Service.SERVICE_BROADCAST));
 //        long activityId = intent.getLongExtra(Constants.ACTIVITY_ID, -1);
 //        if(activityId == -1)
 //        {
