@@ -147,20 +147,6 @@ public class MainMenuActivity extends Activity implements ServiceInterface {
                 listItemId = activities.get(position).getId();
             }
         });
-
-        CheckBox listItemCheckbox = (CheckBox) findViewById(R.id.listItemCheckbox);
-
-        listItemCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    sendToService(listItemId, Constants.Service.ACTIVITY_STATE_CHANGE);
-
-                } else {
-                    sendToService(listItemId, Constants.Service.SERVICE_STOP);
-                }
-            }
-        });
     }
 
     @Override
@@ -182,20 +168,6 @@ public class MainMenuActivity extends Activity implements ServiceInterface {
         sharedPreferences.getBoolean(Constants.Service.SERVICE_RUNNING, false);
 
         setActivityList();
-
-//        CheckBox listItemCheckbox = (CheckBox) findViewById(R.id.listItemCheckbox);
-//
-//        listItemCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//                if (isChecked) {
-//                    sendToService(listItemId, Constants.Service.ACTIVITY_STATE_CHANGE);
-//
-//                } else {
-//                    sendToService(listItemId, Constants.Service.SERVICE_STOP);
-//                }
-//            }
-//        });
     }
 
 
