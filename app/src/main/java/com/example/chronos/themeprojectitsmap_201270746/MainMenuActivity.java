@@ -122,8 +122,7 @@ public class MainMenuActivity extends Activity implements ServiceInterface {
                     if (serviceRunning) {
                         return;
                     }
-                    sendToService(listItemId, Constants.Service.ACTIVITY_STATE_CHANGE);
-
+                    bindService(new Intent(getApplicationContext(), ReminderService.class), mConn, Context.BIND_AUTO_CREATE);
                     editor.putBoolean(Constants.Service.SERVICE_RUNNING, true);
                     editor.apply();
                 } else {
@@ -147,20 +146,6 @@ public class MainMenuActivity extends Activity implements ServiceInterface {
                 listItemId = activities.get(position).getId();
             }
         });
-
-        CheckBox listItemCheckbox = (CheckBox) findViewById(R.id.listItemCheckbox);
-
-        listItemCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    sendToService(listItemId, Constants.Service.ACTIVITY_STATE_CHANGE);
-
-                } else {
-                    sendToService(listItemId, Constants.Service.SERVICE_STOP);
-                }
-            }
-        });
     }
 
     @Override
@@ -182,20 +167,6 @@ public class MainMenuActivity extends Activity implements ServiceInterface {
         sharedPreferences.getBoolean(Constants.Service.SERVICE_RUNNING, false);
 
         setActivityList();
-
-//        CheckBox listItemCheckbox = (CheckBox) findViewById(R.id.listItemCheckbox);
-//
-//        listItemCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//                if (isChecked) {
-//                    sendToService(listItemId, Constants.Service.ACTIVITY_STATE_CHANGE);
-//
-//                } else {
-//                    sendToService(listItemId, Constants.Service.SERVICE_STOP);
-//                }
-//            }
-//        });
     }
 
 
@@ -292,8 +263,7 @@ public class MainMenuActivity extends Activity implements ServiceInterface {
 
                 int snoozeInterval = (snoozeHour*60 + snoozeMinute) - (timeSinceMidnight/1000)/60;
 
-                //sendToService(listItemId, Constants.Service.SNOOZE_APP, snoozeInterval);
-                sendToService(listItemId, Constants.Service.ACTIVITY_STATE_CHANGE);
+                sendToService(listItemId, Constants.Service.SNOOZE_APP, snoozeInterval);
                 popup.dismiss();
             }
         });
@@ -301,6 +271,8 @@ public class MainMenuActivity extends Activity implements ServiceInterface {
 
     public void onAppOffBtn() {
         stopService(new Intent(this, ReminderService.class));
+        mServiceConnected = false;
+
     }
 
     @Override

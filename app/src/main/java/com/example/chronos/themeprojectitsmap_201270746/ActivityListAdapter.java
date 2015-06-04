@@ -102,8 +102,6 @@ public class ActivityListAdapter extends ArrayAdapter
                     SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
 
                     listener.sendToService(items.get(position).getId(), Constants.Service.ACTIVITY_STATE_CHANGE);
-
-
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putInt("checkedId", position);
                     editor.commit();

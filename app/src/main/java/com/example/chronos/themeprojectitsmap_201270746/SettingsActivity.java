@@ -252,8 +252,6 @@ public class SettingsActivity extends PreferenceActivity {
         sendToService(activityId, Constants.Service.ACTIVITY_UPDATED);
 
         if (mServiceConnected) {
-
-            unbindService(mConn);
             mServiceConnected = false;
         }
     }

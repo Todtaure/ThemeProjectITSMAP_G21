@@ -206,7 +206,6 @@ public class ReminderService extends Service {
         intent.putExtra(Constants.BroadcastParams.BROADCAST_METHOD, type.ordinal());
 
         PendingIntent pintent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
         alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + (minutes * 60 * 1000), pintent);
     }
 
@@ -229,26 +228,28 @@ public class ReminderService extends Service {
                 }
                 case ALARM_SERVICE_CHECK:
                 {
-                    if(currentActivity.getIsSnooze() || serviceSnoozed)
+                    if(serviceSnoozed)
                     {
                         break;
                     }
-
+                    Log.d(Constants.Debug.LOG_TAG, "ServiceBroadcaster - not snoozed.");
                     if(!isDNDOrNightMode() || !currentActivity.getDone()) {
+                        Log.d(Constants.Debug.LOG_TAG, "ServiceBroadcaster - not night/dnd/done.");
                         if(checkCalendar())
                         {
+                            Log.d(Constants.Debug.LOG_TAG, "ServiceBroadcaster - no time available.");
                             activitiesResetted = false;
                             break;
                         }
                     }
-                    setAlarm(Constants.Service.UPDATE_INTERVAL_VAL, Constants.BroadcastMethods.ALARM_SERVICE_CHECK);
                     setResetTimer();
                     break;
                 }
                 case ALARM_NOTIFICATION:
                 {
-                    if(currentActivity.getIsSnooze() || currentActivity.getDone() | serviceSnoozed)
+                    if(currentActivity.getIsSnooze() || currentActivity.getDone() || serviceSnoozed)
                     {
+                        setAlarm(Constants.Service.UPDATE_INTERVAL_VAL, Constants.BroadcastMethods.ALARM_SERVICE_CHECK);
                         break;
                     }
                     notifyUser();
@@ -342,6 +343,7 @@ public class ReminderService extends Service {
         currentActivity.setDone(true);
         dataSource.updateActivity(currentActivity);
         dataSource.close();
+        setAlarm(Constants.Service.UPDATE_INTERVAL_VAL, Constants.BroadcastMethods.ALARM_SERVICE_CHECK);
     }
 
     private void incrementActivityReminder() {
@@ -431,6 +433,7 @@ public class ReminderService extends Service {
         {
             return false;
         }
+        Log.d(Constants.Debug.LOG_TAG, "ReminderService.isDNDOrNightMode");
         String[] ids = TimeZone.getAvailableIDs(1 * 60 * 60 * 1000);
 
         SimpleTimeZone pdt = new SimpleTimeZone(1 * 60 * 60 * 1000, ids[0]);
@@ -453,10 +456,12 @@ public class ReminderService extends Service {
         String nightMode = currentActivity.getNightMode();
         String startTime, endTime;
 
-        if(nightMode != null || nightMode.equals(""))
+        if(nightMode != null)
         {
+            if(!nightMode.equals("") )
+            {
             startTime = nightMode.split(",")[0];
-            endTime  = nightMode.split(",")[1];
+            endTime = nightMode.split(",")[1];
 
             Date startSimpleTime, endSimpleTime;
             try {
@@ -467,25 +472,21 @@ public class ReminderService extends Service {
                 endSimpleTime = new SimpleDateFormat("HH:mm").parse(endTime);
                 endDate.setTime(endSimpleTime);
 
-                if(Integer.parseInt(startTime.split(":")[0]) > Integer.parseInt(endTime.split(":")[0]))
-                {
+                if (Integer.parseInt(startTime.split(":")[0]) > Integer.parseInt(endTime.split(":")[0])) {
                     endDate.add(Calendar.DATE, 1);
                 }
-            }
-            catch(ParseException ex)
-            {
+            } catch (ParseException ex) {
                 return false;
             }
 
-            if(now.after(startDate.getTime()) && now.before(endDate.getTime()))
-            {
-                if(!activitiesResetted)
-                {
+            if (now.after(startDate.getTime()) && now.before(endDate.getTime())) {
+                if (!activitiesResetted) {
                     resetAllActivityCounters();
                 }
 
                 return true;
             }
+        }
         }
 
         List<OffIntervalsModel> items = currentActivity.getOffIntervals();

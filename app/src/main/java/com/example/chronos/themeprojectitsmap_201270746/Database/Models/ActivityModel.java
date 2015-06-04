@@ -138,6 +138,7 @@ public class ActivityModel
         setIsOff(true);
         setIsSnooze(false);
         setReminderCounter(0);
+        setMaxReminders(3);
     }
 
     //Other public methods.
