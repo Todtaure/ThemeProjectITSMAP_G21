@@ -127,8 +127,13 @@ public class MainMenuActivity extends Activity implements ServiceInterface {
                     editor.apply();
                 } else {
                     CheckBox checkBox = (CheckBox) findViewById(R.id.listItemCheckbox);
-                    checkBox.setChecked(false);
-                    offSwitch.setText("Off");
+
+                    if(checkBox != null)
+                    {
+                        checkBox.setChecked(false);
+                        offSwitch.setText("Off");
+                    }
+
                     serviceRunning = false;
                     unbindService(mConn);
                     editor.putBoolean(Constants.Service.SERVICE_RUNNING, false);
