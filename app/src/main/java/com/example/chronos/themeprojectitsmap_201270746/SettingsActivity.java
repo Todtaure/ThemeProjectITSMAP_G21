@@ -79,8 +79,7 @@ public class SettingsActivity extends PreferenceActivity {
             Toast.makeText(getBaseContext(), Constants.Messages.ERR_DB_CONNECTION, Toast.LENGTH_LONG).show();
             return;
         }
-        // In the simplified UI, fragments are not used at all and we instead
-        bindService(new Intent(this, ReminderService.class), mConn, Context.BIND_AUTO_CREATE);
+        //bindService(new Intent(this, ReminderService.class), mConn, Context.BIND_AUTO_CREATE);
 
         addPreferencesFromResource(R.xml.pref_name);
 
@@ -187,8 +186,8 @@ public class SettingsActivity extends PreferenceActivity {
                                         deleteSource.open();
                                         deleteSource.deleteActivityById(activityId);
                                         deleteSource.close();
-                                        sendToService(activityId, Constants.Service.ACTIVITY_UPDATED);
                                         activityId = -1;
+                                        sendToService(activityId, Constants.Service.ACTIVITY_UPDATED);
                                         finish();
                                     }
                                 })
@@ -215,10 +214,7 @@ public class SettingsActivity extends PreferenceActivity {
         super.onStop();
         Log.d(Constants.Debug.LOG_TAG, "SettingsActivity.onStop");
 
-        if (activityId == -1) {
-            return;
-        }
-
+        if (activityId != -1) {
         dataSource.open();
         ActivityModel activity = dataSource.getActivityById(activityId);
 
@@ -250,9 +246,10 @@ public class SettingsActivity extends PreferenceActivity {
         dataSource.close();
 
         sendToService(activityId, Constants.Service.ACTIVITY_UPDATED);
-
+        }
         if (mServiceConnected) {
             mServiceConnected = false;
+            unbindService(mConn);
         }
     }
 

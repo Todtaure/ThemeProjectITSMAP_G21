@@ -117,7 +117,7 @@ public class MainMenuActivity extends Activity implements ServiceInterface {
                 SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
                 SharedPreferences.Editor editor = sharedPreferences.edit();
 
-                if (isOn && listItemId >= 0) {
+                if (isOn) {
                     offSwitch.setText("On");
                     if (serviceRunning) {
                         return;
@@ -129,7 +129,8 @@ public class MainMenuActivity extends Activity implements ServiceInterface {
                     CheckBox checkBox = (CheckBox) findViewById(R.id.listItemCheckbox);
                     checkBox.setChecked(false);
                     offSwitch.setText("Off");
-
+                    serviceRunning = false;
+                    unbindService(mConn);
                     editor.putBoolean(Constants.Service.SERVICE_RUNNING, false);
                     editor.apply();
 
@@ -151,7 +152,7 @@ public class MainMenuActivity extends Activity implements ServiceInterface {
     @Override
     public void onResume()
     {
-        super.onPostResume();
+        super.onResume();
         if(!mServiceConnected) {
             bindService(new Intent(this, ReminderService.class), mConn, Context.BIND_AUTO_CREATE);
         }
@@ -282,7 +283,7 @@ public class MainMenuActivity extends Activity implements ServiceInterface {
 
         if (mServiceConnected) {
 
-//            unbindService(mConn);
+            unbindService(mConn);
             mServiceConnected = false;
         }
     }

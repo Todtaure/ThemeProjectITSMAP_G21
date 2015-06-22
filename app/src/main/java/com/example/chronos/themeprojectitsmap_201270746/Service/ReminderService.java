@@ -52,6 +52,7 @@ public class ReminderService extends Service {
     private boolean serviceSnoozed = false;
     private int serviceId;
     private boolean firstTimeSetup = true;
+    private boolean singleSnooze = false;
 
     final Messenger mMessenger = new Messenger(new IncomingHandler());
 
@@ -228,7 +229,7 @@ public class ReminderService extends Service {
                 }
                 case ALARM_SERVICE_CHECK:
                 {
-                    if(serviceSnoozed)
+                    if(serviceSnoozed || currentActivity == null)
                     {
                         break;
                     }
@@ -259,15 +260,17 @@ public class ReminderService extends Service {
                 case ACTIVITY_SNOOZED:
                 {
                     incrementActivityReminder();
+                    singleSnooze = true;
                     setAlarm(Constants.Service.UPDATE_INTERVAL_VAL, Constants.BroadcastMethods.ALARM_SERVICE_CHECK);
                     break;
                 }
                 case ACTIVITY_DONE:
                 {
-                    if(!currentActivity.getIsSnooze())
+                    if(!currentActivity.getIsSnooze() && !singleSnooze)
                     {
                         setActivityDone();
                     }
+                    singleSnooze = false;
                     break;
                 }
                 case SERVICE_RESET_ACTIVITIES:
@@ -299,8 +302,9 @@ public class ReminderService extends Service {
     private void isThisActivityChanged(long activityId) {
         Log.d(Constants.Debug.LOG_TAG, "ReminderService.isThisActivityChanged - precheck");
 
-        if(currentActivity == null)
+        if(currentActivity == null || activityId == -1)
         {
+            stopSelf();
             return;
         }
         if(activityId != currentActivity.getId())
@@ -524,14 +528,21 @@ public class ReminderService extends Service {
 
     private boolean checkCalendar() {
         int timeTillNextInterval = -1;
-
+        if(currentActivity == null)
+        {
+            stopSelf();
+        }
         timeTillNextInterval = calendarInfo.getTimeInMinToNextFreeTimeSlot(this, currentActivity.getMinTimeInterval());
+        Log.d(Constants.Debug.LOG_TAG, "Time Until: " + timeTillNextInterval);
+
+        //DEBUG!
+        timeTillNextInterval = 0;
 
         if(timeTillNextInterval > Constants.Service.UPDATE_INTERVAL_VAL)
         {
             return false;
         }
-
+        Log.d(Constants.Debug.LOG_TAG, "Setting Alarm notification");
         setAlarm(timeTillNextInterval, Constants.BroadcastMethods.ALARM_NOTIFICATION);
         return true;
     }
